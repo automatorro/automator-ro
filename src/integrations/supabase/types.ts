@@ -14,6 +14,193 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_materials: {
+        Row: {
+          content: string | null
+          course_id: string
+          created_at: string
+          download_url: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          material_type: string
+          status: string
+          step_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          course_id: string
+          created_at?: string
+          download_url?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          material_type: string
+          status?: string
+          step_order: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          course_id?: string
+          created_at?: string
+          download_url?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          material_type?: string
+          status?: string
+          step_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_materials_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string
+          environment: string
+          id: string
+          language: string
+          level: string
+          status: string
+          subject: string
+          title: string
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration: string
+          environment: string
+          id?: string
+          language?: string
+          level: string
+          status?: string
+          subject: string
+          title: string
+          tone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string
+          environment?: string
+          id?: string
+          language?: string
+          level?: string
+          status?: string
+          subject?: string
+          title?: string
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generation_pipelines: {
+        Row: {
+          course_id: string
+          created_at: string
+          current_step: number | null
+          error_message: string | null
+          id: string
+          progress_percent: number | null
+          status: string
+          step_data: Json | null
+          total_steps: number | null
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          current_step?: number | null
+          error_message?: string | null
+          id?: string
+          progress_percent?: number | null
+          status?: string
+          step_data?: Json | null
+          total_steps?: number | null
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          current_step?: number | null
+          error_message?: string | null
+          id?: string
+          progress_percent?: number | null
+          status?: string
+          step_data?: Json | null
+          total_steps?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_pipelines_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generation_steps: {
+        Row: {
+          ai_prompt_template: string
+          created_at: string
+          dependencies: string[] | null
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          material_type: string
+          step_name: string
+          step_order: number
+        }
+        Insert: {
+          ai_prompt_template: string
+          created_at?: string
+          dependencies?: string[] | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          material_type: string
+          step_name: string
+          step_order: number
+        }
+        Update: {
+          ai_prompt_template?: string
+          created_at?: string
+          dependencies?: string[] | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          material_type?: string
+          step_name?: string
+          step_order?: number
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           completedAt: string | null
@@ -260,6 +447,8 @@ export type Database = {
           stripeSubscriptionId: string | null
           subscriptionRenewalDate: string | null
           subscriptionStartDate: string | null
+          trial_ends_at: string | null
+          trial_used: boolean | null
         }
         Insert: {
           createdAt?: string | null
@@ -271,6 +460,8 @@ export type Database = {
           stripeSubscriptionId?: string | null
           subscriptionRenewalDate?: string | null
           subscriptionStartDate?: string | null
+          trial_ends_at?: string | null
+          trial_used?: boolean | null
         }
         Update: {
           createdAt?: string | null
@@ -282,47 +473,14 @@ export type Database = {
           stripeSubscriptionId?: string | null
           subscriptionRenewalDate?: string | null
           subscriptionStartDate?: string | null
+          trial_ends_at?: string | null
+          trial_used?: boolean | null
         }
         Relationships: []
       }
     }
     Views: {
-      stripe_user_orders: {
-        Row: {
-          amount_subtotal: number | null
-          amount_total: number | null
-          checkout_session_id: string | null
-          currency: string | null
-          customer_id: string | null
-          order_date: string | null
-          order_id: number | null
-          order_status:
-            | Database["public"]["Enums"]["stripe_order_status"]
-            | null
-          payment_intent_id: string | null
-          payment_status: string | null
-        }
-        Relationships: []
-      }
-      stripe_user_subscriptions: {
-        Row: {
-          cancel_at_period_end: boolean | null
-          current_period_end: number | null
-          current_period_start: number | null
-          customer_id: string | null
-          generationsRemaining: number | null
-          payment_method_brand: string | null
-          payment_method_last4: string | null
-          planType: Database["public"]["Enums"]["plan_type"] | null
-          price_id: string | null
-          subscription_id: string | null
-          subscription_status:
-            | Database["public"]["Enums"]["stripe_subscription_status"]
-            | null
-          subscriptionRenewalDate: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
