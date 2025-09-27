@@ -1,1 +1,4 @@
 project_id = "wxtrrogwicfaavezbdzb"
+
+[functions.generate-course-materials]
+verify_jwt = false

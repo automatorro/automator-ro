@@ -1,0 +1,317 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  ArrowLeft, 
+  Download, 
+  FileText, 
+  Presentation, 
+  BookOpen, 
+  ClipboardList, 
+  Users, 
+  HelpCircle, 
+  ExternalLink,
+  Loader2,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
+import { format } from 'date-fns';
+
+interface Course {
+  id: string;
+  title: string;
+  subject: string;
+  duration: string;
+  level: string;
+  environment: string;
+  tone: string;
+  language: string;
+  status: string;
+  created_at: string;
+}
+
+interface Material {
+  id: string;
+  material_type: string;
+  step_order: number;
+  title: string;
+  content: string | null;
+  file_path: string | null;
+  download_url: string | null;
+  status: string;
+  created_at: string;
+}
+
+interface Pipeline {
+  id: string;
+  current_step: number;
+  total_steps: number;
+  progress_percent: number;
+  status: string;
+  error_message: string | null;
+}
+
+const materialIcons: { [key: string]: any } = {
+  agenda: ClipboardList,
+  objectives: FileText,
+  slides: Presentation,
+  trainer_notes: BookOpen,
+  exercises: Users,
+  manual: BookOpen,
+  tests: HelpCircle,
+  resources: ExternalLink,
+};
+
+export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack: () => void }) {
+  const [course, setCourse] = useState<Course | null>(null);
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [pipeline, setPipeline] = useState<Pipeline | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+    
+    // Set up real-time updates
+    const channel = supabase
+      .channel('materials-updates')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'course_materials',
+        filter: `course_id=eq.${courseId}`
+      }, () => {
+        loadData();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'generation_pipelines',
+        filter: `course_id=eq.${courseId}`
+      }, () => {
+        loadData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [courseId]);
+
+  const loadData = async () => {
+    try {
+      // Load course
+      const { data: courseData, error: courseError } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single();
+
+      if (courseError) throw courseError;
+
+      // Load materials
+      const { data: materialsData, error: materialsError } = await supabase
+        .from('course_materials')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('step_order');
+
+      if (materialsError) throw materialsError;
+
+      // Load pipeline
+      const { data: pipelineData, error: pipelineError } = await supabase
+        .from('generation_pipelines')
+        .select('*')
+        .eq('course_id', courseId)
+        .single();
+
+      if (pipelineError) throw pipelineError;
+
+      setCourse(courseData);
+      setMaterials(materialsData || []);
+      setPipeline(pipelineData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'generating':
+        return <Loader2 className="h-4 w-4 text-primary animate-spin" />;
+      case 'failed':
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
+      default:
+        return <div className="h-4 w-4 rounded-full border-2 border-muted" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const colors: { [key: string]: string } = {
+      pending: 'bg-muted text-muted-foreground',
+      generating: 'bg-primary/20 text-primary',
+      completed: 'bg-success/20 text-success',
+      failed: 'bg-destructive/20 text-destructive'
+    };
+
+    return (
+      <Badge className={colors[status]}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Course not found</p>
+        <Button onClick={onBack} className="mt-4">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="flex-1">
+          <h2 className="text-3xl font-bold tracking-tight">{course.title}</h2>
+          <p className="text-muted-foreground">
+            {course.subject} • {course.duration} • {course.level} level
+          </p>
+        </div>
+        {getStatusBadge(course.status)}
+      </div>
+
+      {pipeline && pipeline.status !== 'pending' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Loader2 className={`h-5 w-5 ${pipeline.status === 'running' ? 'animate-spin' : ''}`} />
+              Generation Progress
+            </CardTitle>
+            <CardDescription>
+              {pipeline.status === 'running' ? 'Generating materials...' : 
+               pipeline.status === 'completed' ? 'All materials generated successfully' :
+               pipeline.status === 'failed' ? 'Generation failed' : 'Generation paused'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Overall Progress</span>
+                <span>{pipeline.progress_percent}%</span>
+              </div>
+              <Progress value={pipeline.progress_percent} className="h-2" />
+              <div className="text-sm text-muted-foreground">
+                Step {pipeline.current_step} of {pipeline.total_steps}
+              </div>
+            </div>
+            {pipeline.error_message && (
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <p className="text-sm text-destructive">{pipeline.error_message}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {materials.map((material) => {
+          const Icon = materialIcons[material.material_type] || FileText;
+          
+          return (
+            <Card key={material.id} className="relative hover:shadow-lg transition-all duration-200">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">{material.title}</CardTitle>
+                      <CardDescription className="text-xs">
+                        Step {material.step_order}
+                      </CardDescription>
+                    </div>
+                  </div>
+                  {getStatusIcon(material.status)}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {material.content && (
+                  <div className="text-sm text-muted-foreground line-clamp-3">
+                    {material.content.substring(0, 150)}...
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between">
+                  {getStatusBadge(material.status)}
+                  {material.status === 'completed' && (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <FileText className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
+                      {material.download_url && (
+                        <Button size="sm">
+                          <Download className="h-3 w-3 mr-1" />
+                          Download
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-xs text-muted-foreground border-t pt-2">
+                  Created {format(new Date(material.created_at), 'MMM d, HH:mm')}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {course.status === 'completed' && (
+        <Card className="border-success/20 bg-success/5">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-6 w-6 text-success" />
+              <div>
+                <h3 className="font-semibold text-success">Course Materials Ready!</h3>
+                <p className="text-sm text-muted-foreground">
+                  All materials have been generated successfully. You can now download and use them.
+                </p>
+              </div>
+              <Button className="ml-auto">
+                <Download className="h-4 w-4 mr-2" />
+                Download All
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
