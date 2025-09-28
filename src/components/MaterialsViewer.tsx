@@ -5,6 +5,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { MaterialEditor } from '@/components/MaterialEditor';
 import { 
   ArrowLeft, 
   Download, 
@@ -17,7 +19,10 @@ import {
   ExternalLink,
   Loader2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Play,
+  Edit,
+  Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -36,14 +41,18 @@ interface Course {
 
 interface Material {
   id: string;
+  course_id: string;
   material_type: string;
   step_order: number;
   title: string;
   content: string | null;
+  approved_content: string | null;
+  approval_status: string;
   file_path: string | null;
   download_url: string | null;
   status: string;
   created_at: string;
+  edited_at: string | null;
 }
 
 interface Pipeline {
@@ -53,6 +62,8 @@ interface Pipeline {
   progress_percent: number;
   status: string;
   error_message: string | null;
+  current_material_id: string | null;
+  waiting_for_approval: boolean;
 }
 
 const materialIcons: { [key: string]: any } = {
@@ -71,6 +82,9 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
   const [materials, setMaterials] = useState<Material[]>([]);
   const [pipeline, setPipeline] = useState<Pipeline | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+  const [generationStarted, setGenerationStarted] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadData();
@@ -158,7 +172,9 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       pending: 'bg-muted text-muted-foreground',
       generating: 'bg-primary/20 text-primary',
       completed: 'bg-success/20 text-success',
-      failed: 'bg-destructive/20 text-destructive'
+      failed: 'bg-destructive/20 text-destructive',
+      approved: 'bg-success/20 text-success',
+      rejected: 'bg-destructive/20 text-destructive'
     };
 
     return (
@@ -167,6 +183,93 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       </Badge>
     );
   };
+
+  const startGeneration = async () => {
+    try {
+      setGenerationStarted(true);
+      
+      const { error } = await supabase.functions.invoke('generate-course-materials', {
+        body: { courseId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Generation Started",
+        description: "AI is now generating your course materials step by step.",
+      });
+    } catch (error) {
+      console.error('Error starting generation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start generation. Please try again.",
+        variant: "destructive",
+      });
+      setGenerationStarted(false);
+    }
+  };
+
+  const handleMaterialSave = async (materialId: string, content: string) => {
+    const { error } = await supabase
+      .from('course_materials')
+      .update({ 
+        approved_content: content, 
+        edited_at: new Date().toISOString() 
+      })
+      .eq('id', materialId);
+
+    if (error) throw error;
+    
+    await loadData();
+  };
+
+  const handleMaterialApprove = async (materialId: string) => {
+    const { error } = await supabase
+      .from('course_materials')
+      .update({ 
+        approval_status: 'approved' 
+      })
+      .eq('id', materialId);
+
+    if (error) throw error;
+    
+    await loadData();
+    setEditingMaterial(null);
+  };
+
+  const handleMaterialReject = async (materialId: string) => {
+    const { error } = await supabase
+      .from('course_materials')
+      .update({ 
+        approval_status: 'rejected',
+        status: 'pending' 
+      })
+      .eq('id', materialId);
+
+    if (error) throw error;
+    
+    await loadData();
+    setEditingMaterial(null);
+  };
+
+  const generateNextMaterial = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('generate-course-materials', {
+        body: { courseId, continueGeneration: true }
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error generating next material:', error);
+      throw error;
+    }
+  };
+
+  const canStartGeneration = course?.status === 'draft' && !generationStarted;
+  const isInProgress = pipeline?.status === 'running' || pipeline?.waiting_for_approval;
+  const currentMaterial = materials.find(m => m.id === pipeline?.current_material_id);
+  const nextMaterial = materials.find(m => m.step_order === (currentMaterial?.step_order || 0) + 1);
+  const canProceedToNext = currentMaterial?.approval_status === 'approved' && !!nextMaterial;
 
   if (loading) {
     return (
@@ -188,6 +291,36 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
     );
   }
 
+  // Show material editor if editing
+  if (editingMaterial) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => setEditingMaterial(null)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Materials
+          </Button>
+          <div className="flex-1">
+            <h2 className="text-3xl font-bold tracking-tight">{course.title}</h2>
+            <p className="text-muted-foreground">
+              Editing: {editingMaterial.title}
+            </p>
+          </div>
+        </div>
+
+        <MaterialEditor
+          material={editingMaterial}
+          onSave={(content) => handleMaterialSave(editingMaterial.id, content)}
+          onApprove={() => handleMaterialApprove(editingMaterial.id)}
+          onReject={() => handleMaterialReject(editingMaterial.id)}
+          onGenerateNext={generateNextMaterial}
+          isGenerating={pipeline?.status === 'running' || false}
+          canProceedToNext={!!canProceedToNext}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -203,6 +336,54 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         </div>
         {getStatusBadge(course.status)}
       </div>
+
+      {/* Start Generation Button */}
+      {canStartGeneration && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <Play className="h-6 w-6 text-primary" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-primary">Ready to Generate</h3>
+                <p className="text-sm text-muted-foreground">
+                  Your course setup is complete. Start AI generation to create all materials.
+                </p>
+              </div>
+              <Button onClick={startGeneration} className="ml-auto">
+                <Play className="h-4 w-4 mr-2" />
+                Start Generation
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Current Step Editing */}
+      {isInProgress && currentMaterial && currentMaterial.content && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <Edit className="h-6 w-6 text-orange-600" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-orange-800">
+                  Review & Edit: {currentMaterial.title}
+                </h3>
+                <p className="text-sm text-orange-600">
+                  AI has generated this material. Please review and edit before continuing.
+                </p>
+              </div>
+              <Button 
+                onClick={() => setEditingMaterial(currentMaterial)}
+                variant="outline"
+                className="border-orange-200 text-orange-700 hover:bg-orange-100"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Material
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {pipeline && pipeline.status !== 'pending' && (
         <Card>
@@ -268,20 +449,40 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
                 
                 <div className="flex items-center justify-between">
                   {getStatusBadge(material.status)}
-                  {material.status === 'completed' && (
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <FileText className="h-3 w-3 mr-1" />
-                        View
-                      </Button>
-                      {material.download_url && (
-                        <Button size="sm">
-                          <Download className="h-3 w-3 mr-1" />
-                          Download
+                  <div className="flex gap-2">
+                    {material.status === 'completed' && (
+                      <>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setEditingMaterial(material)}
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Edit
                         </Button>
-                      )}
-                    </div>
-                  )}
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-3 w-3 mr-1" />
+                          View
+                        </Button>
+                        {material.download_url && (
+                          <Button size="sm">
+                            <Download className="h-3 w-3 mr-1" />
+                            Download
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    {(material.content || material.approved_content) && material.status !== 'completed' && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setEditingMaterial(material)}
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="text-xs text-muted-foreground border-t pt-2">

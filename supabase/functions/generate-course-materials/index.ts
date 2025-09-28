@@ -26,13 +26,135 @@ interface GenerationStep {
   ai_prompt_template: string;
 }
 
+// Helper function to generate single material
+async function generateSingleMaterial(supabase: any, course: any, material: any, geminiApiKey: string) {
+  try {
+    // Update material status
+    await supabase
+      .from('course_materials')
+      .update({ status: 'generating' })
+      .eq('id', material.id);
+
+    // Update pipeline
+    await supabase
+      .from('generation_pipelines')
+      .update({ 
+        current_material_id: material.id,
+        status: 'running',
+        waiting_for_approval: false
+      })
+      .eq('course_id', course.id);
+
+    // Get the generation step for this material
+    const { data: step } = await supabase
+      .from('generation_steps')
+      .select('*')
+      .eq('material_type', material.material_type)
+      .eq('is_active', true)
+      .single();
+
+    if (!step) {
+      throw new Error(`No generation step found for material type: ${material.material_type}`);
+    }
+
+    // Build prompt
+    let prompt = step.ai_prompt_template;
+    prompt = prompt.replace(/{subject}/g, course.subject);
+    prompt = prompt.replace(/{duration}/g, course.duration);
+    prompt = prompt.replace(/{level}/g, course.level);
+    prompt = prompt.replace(/{environment}/g, course.environment);
+    prompt = prompt.replace(/{tone}/g, course.tone);
+    prompt = prompt.replace(/{language}/g, course.language);
+
+    console.log(`Generating ${material.material_type} with Gemini...`);
+
+    // Generate with Gemini
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + geminiApiKey, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH", 
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          }
+        ]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Gemini API error:', response.status, errorData);
+      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Invalid Gemini response:', JSON.stringify(data, null, 2));
+      throw new Error('Invalid response from Gemini API');
+    }
+
+    const generatedText = data.candidates[0].content.parts[0].text;
+
+    // Save generated content
+    await supabase
+      .from('course_materials')
+      .update({ 
+        content: generatedText,
+        status: 'completed',
+        approval_status: 'pending'
+      })
+      .eq('id', material.id);
+
+    // Update pipeline to waiting for approval
+    await supabase
+      .from('generation_pipelines')
+      .update({ 
+        waiting_for_approval: true
+      })
+      .eq('course_id', course.id);
+
+    console.log(`Generated ${material.material_type} successfully`);
+
+  } catch (error) {
+    console.error(`Error generating ${material.material_type}:`, error);
+    
+    await supabase
+      .from('course_materials')
+      .update({ status: 'failed' })
+      .eq('id', material.id);
+      
+    throw error;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { courseId } = await req.json();
+    const { courseId, continueGeneration, materialType } = await req.json();
 
     if (!courseId) {
       throw new Error('Course ID is required');
@@ -57,7 +179,38 @@ serve(async (req) => {
 
     if (courseError) throw courseError;
 
-    // Get generation steps
+    // For step-by-step generation, find next material to generate
+    if (continueGeneration || materialType) {
+      const { data: nextMaterial, error: materialError } = await supabase
+        .from('course_materials')
+        .select('*')
+        .eq('course_id', courseId)
+        .or('status.eq.pending,status.eq.rejected,approval_status.eq.rejected')
+        .order('step_order')
+        .limit(1)
+        .single();
+
+      if (materialError || !nextMaterial) {
+        return new Response(
+          JSON.stringify({ error: 'No materials to generate' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Generate single material
+      await generateSingleMaterial(supabase, course, nextMaterial, geminiApiKey);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: `Generated ${nextMaterial.material_type}`,
+          materialId: nextMaterial.id
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Original bulk generation logic for full course generation
     const { data: steps, error: stepsError } = await supabase
       .from('generation_steps')
       .select('*')

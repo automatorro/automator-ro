@@ -16,10 +16,13 @@ export type Database = {
     Tables: {
       course_materials: {
         Row: {
+          approval_status: string | null
+          approved_content: string | null
           content: string | null
           course_id: string
           created_at: string
           download_url: string | null
+          edited_at: string | null
           file_path: string | null
           file_size: number | null
           id: string
@@ -30,10 +33,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approval_status?: string | null
+          approved_content?: string | null
           content?: string | null
           course_id: string
           created_at?: string
           download_url?: string | null
+          edited_at?: string | null
           file_path?: string | null
           file_size?: number | null
           id?: string
@@ -44,10 +50,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approval_status?: string | null
+          approved_content?: string | null
           content?: string | null
           course_id?: string
           created_at?: string
           download_url?: string | null
+          edited_at?: string | null
           file_path?: string | null
           file_size?: number | null
           id?: string
@@ -119,6 +128,7 @@ export type Database = {
         Row: {
           course_id: string
           created_at: string
+          current_material_id: string | null
           current_step: number | null
           error_message: string | null
           id: string
@@ -127,10 +137,12 @@ export type Database = {
           step_data: Json | null
           total_steps: number | null
           updated_at: string
+          waiting_for_approval: boolean | null
         }
         Insert: {
           course_id: string
           created_at?: string
+          current_material_id?: string | null
           current_step?: number | null
           error_message?: string | null
           id?: string
@@ -139,10 +151,12 @@ export type Database = {
           step_data?: Json | null
           total_steps?: number | null
           updated_at?: string
+          waiting_for_approval?: boolean | null
         }
         Update: {
           course_id?: string
           created_at?: string
+          current_material_id?: string | null
           current_step?: number | null
           error_message?: string | null
           id?: string
@@ -151,6 +165,7 @@ export type Database = {
           step_data?: Json | null
           total_steps?: number | null
           updated_at?: string
+          waiting_for_approval?: boolean | null
         }
         Relationships: [
           {
@@ -158,6 +173,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generation_pipelines_current_material_id_fkey"
+            columns: ["current_material_id"]
+            isOneToOne: false
+            referencedRelation: "course_materials"
             referencedColumns: ["id"]
           },
         ]
@@ -259,6 +281,41 @@ export type Database = {
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_versions: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          material_id: string
+          version_number: number
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          material_id: string
+          version_number?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          material_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_versions_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "course_materials"
             referencedColumns: ["id"]
           },
         ]
@@ -483,7 +540,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_subscription_limits: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       job_status: "pending" | "processing" | "completed" | "failed"
