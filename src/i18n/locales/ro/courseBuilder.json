@@ -1,0 +1,55 @@
+{
+  "title": "Creează un curs nou",
+  "subtitle": "Completează detaliile cursului pentru a genera materialele",
+  "form": {
+    "courseTitle": {
+      "label": "Titlul cursului",
+      "placeholder": "ex. Managementul Timpului pentru Profesioniști"
+    },
+    "subject": {
+      "label": "Subiectul principal",
+      "placeholder": "ex. Productivitate și organizare"
+    },
+    "duration": {
+      "label": "Durata cursului",
+      "placeholder": "ex. 8 ore (1 zi)"
+    },
+    "audience": {
+      "label": "Publicul țintă",
+      "placeholder": "ex. Manageri și lideri de echipă"
+    },
+    "objectives": {
+      "label": "Obiective principale",
+      "placeholder": "Descrie ce vor învăța participanții..."
+    },
+    "level": {
+      "label": "Nivel de dificultate",
+      "beginner": "Începător",
+      "intermediate": "Intermediar",
+      "advanced": "Avansat"
+    },
+    "language": {
+      "label": "Limba cursului",
+      "romanian": "Română",
+      "english": "Engleză"
+    },
+    "tone": {
+      "label": "Tonul cursului",
+      "formal": "Formal",
+      "informal": "Informal",
+      "technical": "Tehnic"
+    }
+  },
+  "generate": "Generează cursul",
+  "generating": "Se generează...",
+  "cancel": "Anulează",
+  "saveDraft": "Salvează draft",
+  "success": {
+    "title": "Curs generat cu succes!",
+    "description": "Materialele tale sunt gata."
+  },
+  "error": {
+    "title": "Eroare la generare",
+    "description": "Te rugăm să încerci din nou."
+  }
+}

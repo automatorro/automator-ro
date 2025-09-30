@@ -1,0 +1,146 @@
+{
+  "hero": {
+    "title": "Automate your educational course creation",
+    "subtitle": "Turn hours of work into minutes. Generate complete courses based on solid pedagogical principles and over 20 years of instructional design experience.",
+    "ctaPrimary": "Start for free",
+    "ctaSecondary": "Watch demo",
+    "stats": {
+      "courses": "2000+ courses generated",
+      "satisfaction": "95% satisfaction",
+      "availability": "24/7 available"
+    }
+  },
+  "pedagogical": {
+    "title": "Not just AI. Proven science and experience.",
+    "subtitle": "Behind every generated course lie solid instructional design principles and over 20 years of experience.",
+    "bloom": {
+      "title": "Bloom's Taxonomy",
+      "description": "Learning objectives structured on cognitive levels - from simple knowledge to advanced critical thinking."
+    },
+    "merrill": {
+      "title": "Merrill's Principles",
+      "description": "Activation, demonstration, application, integration, and assessment - the foundation of every effective course."
+    },
+    "curriculum": {
+      "title": "Verified school curricula",
+      "description": "Alignment with educational standards and specialist-validated curricula."
+    },
+    "experience": {
+      "title": "20+ years of experience",
+      "description": "Over two decades of course design and delivery - we know what works in practice."
+    }
+  },
+  "howItWorks": {
+    "title": "How it works?",
+    "subtitle": "Three simple steps to your perfect course",
+    "step1": {
+      "title": "Define the course",
+      "description": "Fill out a simple form with the subject, duration, target audience, and other important details."
+    },
+    "step2": {
+      "title": "AI generates materials",
+      "description": "Artificial intelligence, based on solid pedagogical principles, creates all materials in just minutes."
+    },
+    "step3": {
+      "title": "Download and use",
+      "description": "Download materials in PDF format or edit them directly in the platform before use."
+    }
+  },
+  "whatYouGet": {
+    "title": "What you get?",
+    "subtitle": "A complete set of materials for your course",
+    "agenda": {
+      "title": "Course agenda",
+      "description": "Detailed schedule with all sessions and their timing"
+    },
+    "objectives": {
+      "title": "Learning objectives",
+      "description": "Clear, measurable objectives based on Bloom's Taxonomy"
+    },
+    "slides": {
+      "title": "Presentation slides",
+      "description": "Complete, structured, and visually attractive presentation"
+    },
+    "trainerNotes": {
+      "title": "Trainer notes",
+      "description": "Step-by-step guide for efficient course delivery"
+    },
+    "exercises": {
+      "title": "Practical exercises",
+      "description": "Hands-on activities for learning consolidation"
+    },
+    "manual": {
+      "title": "Participant manual",
+      "description": "Complete guide for participants with all essential information"
+    },
+    "assessments": {
+      "title": "Tests and quizzes",
+      "description": "Assessments to measure participant progress"
+    },
+    "resources": {
+      "title": "Additional resources",
+      "description": "Useful materials and links for deeper learning"
+    }
+  },
+  "features": {
+    "title": "Why choose Automator?",
+    "subtitle": "All the tools you need in one platform",
+    "ai": {
+      "title": "Automatic AI generation",
+      "description": "Advanced technology based on verified pedagogical principles"
+    },
+    "customize": {
+      "title": "Complete customization",
+      "description": "Choose language, tone, difficulty level, and teaching style"
+    },
+    "fast": {
+      "title": "Fast generation",
+      "description": "From idea to complete course in just minutes, not hours"
+    },
+    "editor": {
+      "title": "Integrated editor",
+      "description": "Edit and adjust any material directly in the platform"
+    },
+    "dashboard": {
+      "title": "Management dashboard",
+      "description": "Organize and manage all your courses from one place"
+    },
+    "security": {
+      "title": "Security and privacy",
+      "description": "Your data is protected and not used for AI training"
+    }
+  },
+  "pricing": {
+    "title": "Simple and transparent pricing",
+    "subtitle": "Start for free and test the platform risk-free",
+    "free": {
+      "title": "Trial Period",
+      "price": "Free",
+      "description": "Test all features",
+      "feature1": "3 free courses",
+      "feature2": "All materials included",
+      "feature3": "Full editor",
+      "feature4": "Email support",
+      "cta": "Start now"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "On request",
+      "description": "For your professional needs",
+      "feature1": "Unlimited courses",
+      "feature2": "Export in multiple formats",
+      "feature3": "Custom branding",
+      "feature4": "Priority support",
+      "feature5": "Custom integrations",
+      "cta": "Contact us"
+    }
+  },
+  "footer": {
+    "tagline": "Automate course creation with solid pedagogical principles",
+    "about": "About",
+    "contact": "Contact",
+    "terms": "Terms and conditions",
+    "privacy": "Privacy policy",
+    "copyright": "© 2024 Automator-RO. All rights reserved."
+  }
+}

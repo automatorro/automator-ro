@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,7 @@ interface CourseFormData {
 }
 
 export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId: string) => void }) {
+  const { t } = useTranslation('courseBuilder');
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,6 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
     setLoading(true);
     try {
-      // Create course
       const { data: course, error: courseError } = await supabase
         .from('courses')
         .insert({
@@ -59,7 +60,6 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
       if (courseError) throw courseError;
 
-      // Create generation pipeline
       const { error: pipelineError } = await supabase
         .from('generation_pipelines')
         .insert({
@@ -72,7 +72,6 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
       if (pipelineError) throw pipelineError;
 
-      // Initialize course materials with pending status
       const steps = [
         { type: 'agenda', order: 1, title: 'Course Agenda' },
         { type: 'objectives', order: 2, title: 'Learning Objectives' },
@@ -99,13 +98,12 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
       if (materialsError) throw materialsError;
 
       toast({
-        title: "Course Created Successfully",
-        description: "Your course is ready for generation!",
+        title: t('success.title'),
+        description: t('success.description'),
       });
 
       onCourseCreated(course.id);
 
-      // Reset form
       setFormData({
         title: '',
         description: '',
@@ -120,8 +118,8 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
     } catch (error) {
       console.error('Error creating course:', error);
       toast({
-        title: "Error",
-        description: "Failed to create course. Please try again.",
+        title: t('error.title'),
+        description: t('error.description'),
         variant: "destructive",
       });
     } finally {
@@ -130,72 +128,70 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto backdrop-blur-lg bg-white/70 dark:bg-gray-900/70 border-white/20 shadow-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-          Create New Course
+        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          {t('title')}
         </CardTitle>
-        <CardDescription>
-          Fill in the details below to generate comprehensive course materials with AI
-        </CardDescription>
+        <CardDescription>{t('subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Course Title</Label>
+              <Label htmlFor="title">{t('form.courseTitle.label')}</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="e.g., Leadership Skills Training"
+                placeholder={t('form.courseTitle.placeholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
+              <Label htmlFor="subject">{t('form.subject.label')}</Label>
               <Input
                 id="subject"
                 value={formData.subject}
                 onChange={(e) => handleInputChange('subject', e.target.value)}
-                placeholder="e.g., Management, IT, Marketing"
+                placeholder={t('form.subject.placeholder')}
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('form.objectives.label')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of the course objectives and target audience"
+              placeholder={t('form.objectives.placeholder')}
               rows={3}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">{t('form.duration.label')}</Label>
               <Input
                 id="duration"
                 value={formData.duration}
                 onChange={(e) => handleInputChange('duration', e.target.value)}
-                placeholder="e.g., 2 days, 4 hours"
+                placeholder={t('form.duration.placeholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="level">Level</Label>
+              <Label htmlFor="level">{t('form.level.label')}</Label>
               <Select value={formData.level} onValueChange={(value: any) => handleInputChange('level', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
+                  <SelectItem value="beginner">{t('form.level.beginner')}</SelectItem>
+                  <SelectItem value="intermediate">{t('form.level.intermediate')}</SelectItem>
+                  <SelectItem value="advanced">{t('form.level.advanced')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -203,58 +199,45 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="environment">Environment</Label>
-              <Select value={formData.environment} onValueChange={(value: any) => handleInputChange('environment', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="corporate">Corporate</SelectItem>
-                  <SelectItem value="academic">Academic</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tone">Tone</Label>
+              <Label htmlFor="tone">{t('form.tone.label')}</Label>
               <Select value={formData.tone} onValueChange={(value: any) => handleInputChange('tone', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="formal">Formal</SelectItem>
-                  <SelectItem value="friendly">Friendly</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
+                  <SelectItem value="professional">{t('form.tone.formal')}</SelectItem>
+                  <SelectItem value="formal">{t('form.tone.formal')}</SelectItem>
+                  <SelectItem value="friendly">{t('form.tone.informal')}</SelectItem>
+                  <SelectItem value="casual">{t('form.tone.informal')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="language">{t('form.language.label')}</Label>
+              <Select value={formData.language} onValueChange={(value: any) => handleInputChange('language', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">{t('form.language.english')}</SelectItem>
+                  <SelectItem value="ro">{t('form.language.romanian')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="language">Language</Label>
-            <Select value={formData.language} onValueChange={(value: any) => handleInputChange('language', value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="ro">Romanian</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+            className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-2xl transition-all hover:scale-105"
             disabled={loading}
           >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating Course...
+                {t('generating')}
               </>
             ) : (
-              'Create Course'
+              t('generate')
             )}
           </Button>
         </form>

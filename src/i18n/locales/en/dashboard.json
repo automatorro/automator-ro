@@ -1,0 +1,16 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Create and manage your AI-generated educational courses",
+  "newCourse": "New Course",
+  "myCourses": "My Courses",
+  "recentCourses": "Recent Courses",
+  "noCourses": "No courses yet",
+  "noCoursesDescription": "Start by creating your first course!",
+  "createFirst": "Create first course",
+  "viewCourse": "View course",
+  "editCourse": "Edit course",
+  "deleteCourse": "Delete course",
+  "courseCreated": "Created at",
+  "materials": "Materials",
+  "loading": "Loading courses..."
+}

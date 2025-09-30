@@ -1,0 +1,31 @@
+{
+  "title": "Materialele cursului",
+  "backToDashboard": "Înapoi la Tabloul de bord",
+  "downloadAll": "Descarcă tot",
+  "edit": "Editează",
+  "preview": "Preview",
+  "download": "Descarcă",
+  "generating": "Se generează materialele...",
+  "generatingDescription": "Aceasta poate dura câteva minute.",
+  "types": {
+    "agenda": "Agenda",
+    "objectives": "Obiective",
+    "slides": "Sliduri",
+    "trainerNotes": "Note trainer",
+    "exercises": "Exerciții",
+    "manual": "Manual",
+    "assessment": "Evaluare",
+    "resources": "Resurse"
+  },
+  "status": {
+    "ready": "Gata",
+    "generating": "Se generează",
+    "error": "Eroare"
+  },
+  "noMaterials": "Nu există materiale generate încă",
+  "regenerate": "Regenerează",
+  "success": {
+    "downloaded": "Descărcat cu succes!",
+    "saved": "Salvat cu succes!"
+  }
+}

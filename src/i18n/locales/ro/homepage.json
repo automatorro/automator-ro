@@ -1,0 +1,146 @@
+{
+  "hero": {
+    "title": "Automatizează crearea cursurilor tale educaționale",
+    "subtitle": "Transformă ore de muncă în minute. Generează cursuri complete bazate pe principii pedagogice solide și peste 20 de ani de experiență în design instrucțional.",
+    "ctaPrimary": "Începe gratuit",
+    "ctaSecondary": "Vezi demo",
+    "stats": {
+      "courses": "2000+ cursuri generate",
+      "satisfaction": "95% satisfacție",
+      "availability": "24/7 disponibil"
+    }
+  },
+  "pedagogical": {
+    "title": "Nu doar AI. Știință și experiență verificată.",
+    "subtitle": "În spatele fiecărui curs generat stau principii solide de design instrucțional și peste 20 de ani de experiență.",
+    "bloom": {
+      "title": "Taxonomia lui Bloom",
+      "description": "Obiective de învățare structurate pe niveluri cognitive - de la cunoștințe simple la gândire critică avansată."
+    },
+    "merrill": {
+      "title": "Principiile lui Merrill",
+      "description": "Activare, demonstrație, aplicare, integrare și evaluare - fundamentul oricărui curs eficient."
+    },
+    "curriculum": {
+      "title": "Programe școlare verificate",
+      "description": "Aliniere cu standardele educaționale și curriculum-uri validate de specialiști."
+    },
+    "experience": {
+      "title": "20+ ani de experiență",
+      "description": "Peste două decenii de design și livrare de cursuri - știm ce funcționează în practică."
+    }
+  },
+  "howItWorks": {
+    "title": "Cum funcționează?",
+    "subtitle": "Trei pași simpli către cursul tău perfect",
+    "step1": {
+      "title": "Definește cursul",
+      "description": "Completezi un formular simplu cu subiectul, durata, publicul țintă și alte detalii importante."
+    },
+    "step2": {
+      "title": "AI generează materialele",
+      "description": "Inteligența artificială, bazată pe principii pedagogice solide, creează toate materialele în câteva minute."
+    },
+    "step3": {
+      "title": "Descarcă și folosește",
+      "description": "Descarcă materialele în format PDF sau editează-le direct în platformă înainte de utilizare."
+    }
+  },
+  "whatYouGet": {
+    "title": "Ce primești?",
+    "subtitle": "Un set complet de materiale pentru cursul tău",
+    "agenda": {
+      "title": "Agenda cursului",
+      "description": "Program detaliat cu toate sesiunile și timing-ul acestora"
+    },
+    "objectives": {
+      "title": "Obiective de învățare",
+      "description": "Obiective clare, măsurabile, bazate pe Taxonomia lui Bloom"
+    },
+    "slides": {
+      "title": "Sliduri de prezentare",
+      "description": "Prezentare completă, structurată și vizual atractivă"
+    },
+    "trainerNotes": {
+      "title": "Note pentru trainer",
+      "description": "Ghid pas cu pas pentru livrarea eficientă a cursului"
+    },
+    "exercises": {
+      "title": "Exerciții practice",
+      "description": "Activități hands-on pentru consolidarea învățării"
+    },
+    "manual": {
+      "title": "Manual participant",
+      "description": "Ghid complet pentru participanți cu toate informațiile esențiale"
+    },
+    "assessments": {
+      "title": "Teste și quiz-uri",
+      "description": "Evaluări pentru măsurarea progresului participanților"
+    },
+    "resources": {
+      "title": "Resurse suplimentare",
+      "description": "Materiale și linkuri utile pentru aprofundare"
+    }
+  },
+  "features": {
+    "title": "De ce să alegi Automator?",
+    "subtitle": "Toate instrumentele de care ai nevoie într-o singură platformă",
+    "ai": {
+      "title": "Generare automată cu AI",
+      "description": "Tehnologie avansată bazată pe principii pedagogice verificate"
+    },
+    "customize": {
+      "title": "Personalizare completă",
+      "description": "Alege limba, tonul, nivelul de dificultate și stilul de predare"
+    },
+    "fast": {
+      "title": "Generare rapidă",
+      "description": "De la idee la curs complet în doar câteva minute, nu ore"
+    },
+    "editor": {
+      "title": "Editor integrat",
+      "description": "Editează și ajustează orice material direct în platformă"
+    },
+    "dashboard": {
+      "title": "Dashboard pentru management",
+      "description": "Organizează și gestionează toate cursurile tale dintr-un singur loc"
+    },
+    "security": {
+      "title": "Securitate și confidențialitate",
+      "description": "Datele tale sunt protejate și nu sunt folosite pentru antrenarea AI-ului"
+    }
+  },
+  "pricing": {
+    "title": "Prețuri simple și transparente",
+    "subtitle": "Începe gratuit și testează platforma fără risc",
+    "free": {
+      "title": "Perioadă de probă",
+      "price": "Gratuit",
+      "description": "Testează toate funcționalitățile",
+      "feature1": "3 cursuri gratuite",
+      "feature2": "Toate materialele incluse",
+      "feature3": "Editor complet",
+      "feature4": "Suport email",
+      "cta": "Începe acum"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "La cerere",
+      "description": "Pentru nevoile tale profesionale",
+      "feature1": "Cursuri nelimitate",
+      "feature2": "Export în multiple formate",
+      "feature3": "Branding personalizat",
+      "feature4": "Suport prioritar",
+      "feature5": "Integrări custom",
+      "cta": "Contactează-ne"
+    }
+  },
+  "footer": {
+    "tagline": "Automatizează crearea cursurilor cu principii pedagogice solide",
+    "about": "Despre",
+    "contact": "Contact",
+    "terms": "Termeni și condiții",
+    "privacy": "Politica de confidențialitate",
+    "copyright": "© 2024 Automator-RO. Toate drepturile rezervate."
+  }
+}

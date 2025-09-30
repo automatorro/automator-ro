@@ -1,0 +1,29 @@
+{
+  "navigation": {
+    "home": "Acasă",
+    "dashboard": "Tablou de bord",
+    "signIn": "Autentificare",
+    "signUp": "Înregistrare",
+    "signOut": "Deconectare",
+    "profile": "Profil",
+    "settings": "Setări",
+    "billing": "Facturare"
+  },
+  "actions": {
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "create": "Creează",
+    "download": "Descarcă",
+    "back": "Înapoi",
+    "next": "Următorul",
+    "previous": "Anteriorul",
+    "close": "Închide",
+    "loading": "Se încarcă...",
+    "viewMore": "Vezi mai mult"
+  },
+  "status": {
+    "trial": "Perioadă de probă"
+  }
+}

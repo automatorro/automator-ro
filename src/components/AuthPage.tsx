@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2, BookOpen, Chrome } from 'lucide-react';
 
 export function AuthPage() {
+  const { t } = useTranslation('auth');
   const { signIn, signUp, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -58,66 +60,62 @@ export function AuthPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="p-3 rounded-xl bg-primary text-primary-foreground">
-              <BookOpen className="h-8 w-8" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-secondary shadow-lg">
+              <BookOpen className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Course Generator</h1>
-          <p className="text-muted-foreground">
-            Generate comprehensive course materials with AI
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Automator-RO</h1>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
         </div>
 
-        <Card className="shadow-lg border-border/50">
+        <Card className="shadow-2xl backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 border-white/20">
           <CardHeader className="text-center">
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>
-              Sign in to your account or create a new one to get started
-            </CardDescription>
+            <CardTitle>{t('title')}</CardTitle>
+            <CardDescription>{t('subtitle')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin">{t('signInTab')}</TabsTrigger>
+                <TabsTrigger value="signup">{t('signUpTab')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="space-y-4">
                 <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t('emailLabel')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="Enter your email"
+                      placeholder={t('emailPlaceholder')}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t('passwordLabel')}</Label>
                     <Input
                       id="signin-password"
                       type="password"
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
-                      placeholder="Enter your password"
+                      placeholder={t('passwordPlaceholder')}
                       required
                     />
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-primary/90"
+                    className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg"
                     disabled={loading}
                   >
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Signing In...
+                        {t('signIn')}...
                       </>
                     ) : (
-                      'Sign In'
+                      t('signIn')
                     )}
                   </Button>
                 </form>
@@ -126,50 +124,50 @@ export function AuthPage() {
               <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={(e) => handleSubmit(e, true)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t('emailLabel')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="Enter your email"
+                      placeholder={t('emailPlaceholder')}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t('passwordLabel')}</Label>
                     <Input
                       id="signup-password"
                       type="password"
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
-                      placeholder="Create a password"
+                      placeholder={t('passwordPlaceholder')}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Label htmlFor="confirm-password">{t('passwordLabel')}</Label>
                     <Input
                       id="confirm-password"
                       type="password"
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                      placeholder="Confirm your password"
+                      placeholder={t('passwordPlaceholder')}
                       required
                     />
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-primary/90"
+                    className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg"
                     disabled={loading}
                   >
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating Account...
+                        {t('signUp')}...
                       </>
                     ) : (
-                      'Create Account'
+                      t('signUp')
                     )}
                   </Button>
                 </form>
@@ -201,11 +199,6 @@ export function AuthPage() {
                 </>
               )}
             </Button>
-
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              <p>🎯 <strong>3-day free trial</strong></p>
-              <p>Then €19/month for unlimited access</p>
-            </div>
           </CardContent>
         </Card>
       </div>

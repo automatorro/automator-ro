@@ -1,0 +1,31 @@
+{
+  "title": "Course materials",
+  "backToDashboard": "Back to Dashboard",
+  "downloadAll": "Download all",
+  "edit": "Edit",
+  "preview": "Preview",
+  "download": "Download",
+  "generating": "Generating materials...",
+  "generatingDescription": "This may take a few minutes.",
+  "types": {
+    "agenda": "Agenda",
+    "objectives": "Objectives",
+    "slides": "Slides",
+    "trainerNotes": "Trainer Notes",
+    "exercises": "Exercises",
+    "manual": "Manual",
+    "assessment": "Assessment",
+    "resources": "Resources"
+  },
+  "status": {
+    "ready": "Ready",
+    "generating": "Generating",
+    "error": "Error"
+  },
+  "noMaterials": "No materials generated yet",
+  "regenerate": "Regenerate",
+  "success": {
+    "downloaded": "Downloaded successfully!",
+    "saved": "Saved successfully!"
+  }
+}

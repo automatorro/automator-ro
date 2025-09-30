@@ -1,0 +1,16 @@
+{
+  "title": "Tablou de bord",
+  "subtitle": "Creează și gestionează cursurile tale educaționale generate de AI",
+  "newCourse": "Curs nou",
+  "myCourses": "Cursurile mele",
+  "recentCourses": "Cursuri recente",
+  "noCourses": "Nu ai cursuri încă",
+  "noCoursesDescription": "Începe prin a crea primul tău curs!",
+  "createFirst": "Creează primul curs",
+  "viewCourse": "Vezi cursul",
+  "editCourse": "Editează cursul",
+  "deleteCourse": "Șterge cursul",
+  "courseCreated": "Creat la",
+  "materials": "Materiale",
+  "loading": "Se încarcă cursurile..."
+}

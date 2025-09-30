@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { BookOpen, Clock, Globe, Settings, Play, Download, Eye } from 'lucide-react';
+import { BookOpen, Clock, Globe, Settings, Play, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Course {
@@ -30,6 +31,7 @@ interface Pipeline {
 }
 
 export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: string) => void }) {
+  const { t } = useTranslation('dashboard');
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
@@ -43,7 +45,6 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
 
   const loadData = async () => {
     try {
-      // Load courses
       const { data: coursesData, error: coursesError } = await supabase
         .from('courses')
         .select('*')
@@ -52,7 +53,6 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
 
       if (coursesError) throw coursesError;
 
-      // Load pipelines
       const { data: pipelinesData, error: pipelinesError } = await supabase
         .from('generation_pipelines')
         .select('*')
@@ -76,8 +76,6 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
       });
 
       if (error) throw error;
-
-      // Refresh data
       loadData();
     } catch (error) {
       console.error('Error starting generation:', error);
@@ -109,7 +107,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading courses...</div>
+        <div className="text-muted-foreground">{t('loading')}</div>
       </div>
     );
   }
@@ -118,25 +116,21 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">My Courses</h2>
-          <p className="text-muted-foreground">
-            Manage and track your course material generation
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight">{t('myCourses')}</h2>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Globe className="h-4 w-4" />
-          {courses.length} courses created
+          {courses.length} {t('recentCourses').toLowerCase()}
         </div>
       </div>
 
       {courses.length === 0 ? (
-        <Card className="text-center py-12">
+        <Card className="text-center py-12 backdrop-blur-lg bg-white/60 dark:bg-gray-900/60 border-white/20">
           <CardContent>
             <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <CardTitle className="mb-2">No courses yet</CardTitle>
-            <CardDescription>
-              Create your first course to start generating materials with AI
-            </CardDescription>
+            <CardTitle className="mb-2">{t('noCourses')}</CardTitle>
+            <CardDescription>{t('noCoursesDescription')}</CardDescription>
           </CardContent>
         </Card>
       ) : (
@@ -144,7 +138,10 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
           {courses.map((course) => {
             const pipeline = pipelines.find(p => p.course_id === course.id);
             return (
-              <Card key={course.id} className="hover:shadow-lg transition-shadow duration-200 border-border/50">
+              <Card 
+                key={course.id} 
+                className="hover:shadow-2xl transition-all duration-300 hover:scale-105 backdrop-blur-lg bg-white/70 dark:bg-gray-900/70 border-white/20"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
@@ -200,7 +197,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                         className="flex-1"
                       >
                         <Eye className="h-3 w-3 mr-1" />
-                        View Materials
+                        {t('viewCourse')}
                       </Button>
                     )}
                     {(course.status === 'generating' || course.status === 'completed') && (
@@ -215,7 +212,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                   </div>
 
                   <div className="text-xs text-muted-foreground border-t pt-3">
-                    Created {format(new Date(course.created_at), 'MMM d, yyyy')}
+                    {t('courseCreated')} {format(new Date(course.created_at), 'MMM d, yyyy')}
                   </div>
                 </CardContent>
               </Card>

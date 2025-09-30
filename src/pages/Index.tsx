@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from '@/components/AuthPage';
 import { Header } from '@/components/Header';
@@ -12,29 +14,45 @@ import { ThemeProvider } from 'next-themes';
 type View = 'dashboard' | 'builder' | 'materials';
 
 function AppContent() {
+  const { t } = useTranslation('dashboard');
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user && !loading) {
+    if (!loading && !user && location.pathname !== '/auth') {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate, location]);
+
+  useEffect(() => {
+    if (location.pathname.includes('/dashboard/new-course')) {
+      setCurrentView('builder');
+    } else if (location.pathname.includes('/dashboard/courses/')) {
+      const courseId = location.pathname.split('/').pop();
+      if (courseId) {
+        setSelectedCourseId(courseId);
+        setCurrentView('materials');
+      }
+    } else if (location.pathname.includes('/dashboard')) {
       setCurrentView('dashboard');
     }
-  }, [user, loading]);
+  }, [location]);
 
   const handleCourseCreated = (courseId: string) => {
     setSelectedCourseId(courseId);
-    setCurrentView('materials');
+    navigate(`/dashboard/courses/${courseId}`);
   };
 
   const handleSelectCourse = (courseId: string) => {
     setSelectedCourseId(courseId);
-    setCurrentView('materials');
+    navigate(`/dashboard/courses/${courseId}`);
   };
 
   const handleBackToDashboard = () => {
-    setCurrentView('dashboard');
-    setSelectedCourseId(null);
+    navigate('/dashboard');
   };
 
   if (loading) {
@@ -60,17 +78,15 @@ function AppContent() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground">
-                  Create and manage your AI-generated course materials
-                </p>
+                <h1 className="text-4xl font-bold tracking-tight">{t('title')}</h1>
+                <p className="text-muted-foreground">{t('subtitle')}</p>
               </div>
               <Button
-                onClick={() => setCurrentView('builder')}
-                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+                onClick={() => navigate('/dashboard/new-course')}
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-2xl transition-all hover:scale-105"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                New Course
+                {t('newCourse')}
               </Button>
             </div>
             <Dashboard onSelectCourse={handleSelectCourse} />
@@ -82,9 +98,9 @@ function AppContent() {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                onClick={() => setCurrentView('dashboard')}
+                onClick={() => navigate('/dashboard')}
               >
-                ← Back to Dashboard
+                ← {t('title')}
               </Button>
             </div>
             <CourseBuilder onCourseCreated={handleCourseCreated} />

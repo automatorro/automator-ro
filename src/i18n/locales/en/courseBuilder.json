@@ -1,0 +1,55 @@
+{
+  "title": "Create a new course",
+  "subtitle": "Fill in the course details to generate materials",
+  "form": {
+    "courseTitle": {
+      "label": "Course title",
+      "placeholder": "e.g. Time Management for Professionals"
+    },
+    "subject": {
+      "label": "Main subject",
+      "placeholder": "e.g. Productivity and organization"
+    },
+    "duration": {
+      "label": "Course duration",
+      "placeholder": "e.g. 8 hours (1 day)"
+    },
+    "audience": {
+      "label": "Target audience",
+      "placeholder": "e.g. Managers and team leaders"
+    },
+    "objectives": {
+      "label": "Main objectives",
+      "placeholder": "Describe what participants will learn..."
+    },
+    "level": {
+      "label": "Difficulty level",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "language": {
+      "label": "Course language",
+      "romanian": "Romanian",
+      "english": "English"
+    },
+    "tone": {
+      "label": "Course tone",
+      "formal": "Formal",
+      "informal": "Informal",
+      "technical": "Technical"
+    }
+  },
+  "generate": "Generate course",
+  "generating": "Generating...",
+  "cancel": "Cancel",
+  "saveDraft": "Save draft",
+  "success": {
+    "title": "Course generated successfully!",
+    "description": "Your materials are ready."
+  },
+  "error": {
+    "title": "Generation error",
+    "description": "Please try again."
+  }
+}
