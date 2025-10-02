@@ -20,7 +20,12 @@
   "status": {
     "ready": "Ready",
     "generating": "Generating",
-    "error": "Error"
+    "error": "Error",
+    "pending": "Pending",
+    "completed": "Completed",
+    "failed": "Failed",
+    "approved": "Approved",
+    "rejected": "Rejected"
   },
   "noMaterials": "No materials generated yet",
   "regenerate": "Regenerate",

@@ -11,10 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { BookOpen, User, CreditCard, Settings, LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export function Header() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation(['common']);
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
@@ -36,8 +39,10 @@ export function Header() {
 
         <div className="flex items-center gap-4">
           <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-            Trial Active
+            {t('status.trial')}
           </Badge>
+
+          <LanguageSwitcher />
 
           <Button
             variant="ghost"
@@ -63,27 +68,27 @@ export function Header() {
                 <div className="flex flex-col space-y-1 leading-none">
                   <p className="font-medium">{user?.email}</p>
                   <p className="w-48 truncate text-sm text-muted-foreground">
-                    Free Trial
+                    {t('status.trial')}
                   </p>
                 </div>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
-                Profile
+                {t('navigation.profile')}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCard className="mr-2 h-4 w-4" />
-                Billing
+                {t('navigation.billing')}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
-                Settings
+                {t('navigation.settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => signOut()}>
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign out
+                {t('navigation.signOut')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

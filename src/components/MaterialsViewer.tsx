@@ -25,6 +25,7 @@ import {
   Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 interface Course {
   id: string;
@@ -78,6 +79,7 @@ const materialIcons: { [key: string]: any } = {
 };
 
 export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack: () => void }) {
+  const { t } = useTranslation(['materials', 'common']);
   const [course, setCourse] = useState<Course | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [pipeline, setPipeline] = useState<Pipeline | null>(null);
@@ -179,7 +181,7 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
 
     return (
       <Badge className={colors[status]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {t(`status.${status}`, { ns: 'materials' })}
       </Badge>
     );
   };
@@ -195,14 +197,14 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       if (error) throw error;
 
       toast({
-        title: "Generation Started",
-        description: "AI is now generating your course materials step by step.",
+        title: t('generating', { ns: 'materials' }),
+        description: t('generatingDescription', { ns: 'materials' }),
       });
     } catch (error) {
       console.error('Error starting generation:', error);
       toast({
-        title: "Error",
-        description: "Failed to start generation. Please try again.",
+        title: t('status.error', { ns: 'materials' }),
+        description: t('generatingDescription', { ns: 'materials' }),
         variant: "destructive",
       });
       setGenerationStarted(false);
@@ -282,10 +284,10 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
   if (!course) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Course not found</p>
+        <p className="text-muted-foreground">{t('noMaterials', { ns: 'materials' })}</p>
         <Button onClick={onBack} className="mt-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
+          {t('backToDashboard', { ns: 'materials' })}
         </Button>
       </div>
     );
@@ -298,12 +300,12 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => setEditingMaterial(null)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Materials
+            {t('title', { ns: 'materials' })}
           </Button>
           <div className="flex-1">
             <h2 className="text-3xl font-bold tracking-tight">{course.title}</h2>
             <p className="text-muted-foreground">
-              Editing: {editingMaterial.title}
+              {t('edit', { ns: 'materials' })}: {editingMaterial.title}
             </p>
           </div>
         </div>
@@ -326,12 +328,12 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          {t('actions.back', { ns: 'common' })}
         </Button>
         <div className="flex-1">
           <h2 className="text-3xl font-bold tracking-tight">{course.title}</h2>
           <p className="text-muted-foreground">
-            {course.subject} • {course.duration} • {course.level} level
+            {course.subject} • {course.duration} • {course.level}
           </p>
         </div>
         {getStatusBadge(course.status)}
@@ -344,14 +346,14 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
             <div className="flex items-center gap-3">
               <Play className="h-6 w-6 text-primary" />
               <div className="flex-1">
-                <h3 className="font-semibold text-primary">Ready to Generate</h3>
+                <h3 className="font-semibold text-primary">{t('generating', { ns: 'materials' })}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your course setup is complete. Start AI generation to create all materials.
+                  {t('generatingDescription', { ns: 'materials' })}
                 </p>
               </div>
               <Button onClick={startGeneration} className="ml-auto">
                 <Play className="h-4 w-4 mr-2" />
-                Start Generation
+                {t('generating', { ns: 'materials' })}
               </Button>
             </div>
           </CardContent>
@@ -360,25 +362,25 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
 
       {/* Current Step Editing */}
       {isInProgress && currentMaterial && currentMaterial.content && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-900/50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <Edit className="h-6 w-6 text-orange-600" />
+              <Edit className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               <div className="flex-1">
-                <h3 className="font-semibold text-orange-800">
-                  Review & Edit: {currentMaterial.title}
+                <h3 className="font-semibold text-orange-800 dark:text-orange-300">
+                  {t('edit', { ns: 'materials' })}: {currentMaterial.title}
                 </h3>
-                <p className="text-sm text-orange-600">
-                  AI has generated this material. Please review and edit before continuing.
+                <p className="text-sm text-orange-600 dark:text-orange-400">
+                  {t('generatingDescription', { ns: 'materials' })}
                 </p>
               </div>
               <Button 
                 onClick={() => setEditingMaterial(currentMaterial)}
                 variant="outline"
-                className="border-orange-200 text-orange-700 hover:bg-orange-100"
+                className="border-orange-200 text-orange-700 hover:bg-orange-100 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950"
               >
                 <Edit className="h-4 w-4 mr-2" />
-                Edit Material
+                {t('edit', { ns: 'materials' })}
               </Button>
             </div>
           </CardContent>
@@ -390,23 +392,23 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Loader2 className={`h-5 w-5 ${pipeline.status === 'running' ? 'animate-spin' : ''}`} />
-              Generation Progress
+              {t('generating', { ns: 'materials' })}
             </CardTitle>
             <CardDescription>
-              {pipeline.status === 'running' ? 'Generating materials...' : 
-               pipeline.status === 'completed' ? 'All materials generated successfully' :
-               pipeline.status === 'failed' ? 'Generation failed' : 'Generation paused'}
+              {pipeline.status === 'running' ? t('status.generating', { ns: 'materials' }) : 
+               pipeline.status === 'completed' ? t('status.ready', { ns: 'materials' }) :
+               pipeline.status === 'failed' ? t('status.error', { ns: 'materials' }) : t('status.generating', { ns: 'materials' })}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Overall Progress</span>
+                <span>{t('generating', { ns: 'materials' })}</span>
                 <span>{pipeline.progress_percent}%</span>
               </div>
               <Progress value={pipeline.progress_percent} className="h-2" />
               <div className="text-sm text-muted-foreground">
-                Step {pipeline.current_step} of {pipeline.total_steps}
+                {pipeline.current_step} / {pipeline.total_steps}
               </div>
             </div>
             {pipeline.error_message && (
@@ -458,16 +460,16 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
                           onClick={() => setEditingMaterial(material)}
                         >
                           <Edit className="h-3 w-3 mr-1" />
-                          Edit
+                          {t('edit', { ns: 'materials' })}
                         </Button>
                         <Button size="sm" variant="outline">
                           <Eye className="h-3 w-3 mr-1" />
-                          View
+                          {t('preview', { ns: 'materials' })}
                         </Button>
                         {material.download_url && (
                           <Button size="sm">
                             <Download className="h-3 w-3 mr-1" />
-                            Download
+                            {t('download', { ns: 'materials' })}
                           </Button>
                         )}
                       </>
@@ -479,7 +481,7 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
                         onClick={() => setEditingMaterial(material)}
                       >
                         <Edit className="h-3 w-3 mr-1" />
-                        Edit
+                        {t('edit', { ns: 'materials' })}
                       </Button>
                     )}
                   </div>
@@ -495,19 +497,19 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       </div>
 
       {course.status === 'completed' && (
-        <Card className="border-success/20 bg-success/5">
+        <Card className="border-success/20 bg-success/5 dark:bg-success/10">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-6 w-6 text-success" />
               <div>
-                <h3 className="font-semibold text-success">Course Materials Ready!</h3>
+                <h3 className="font-semibold text-success">{t('status.ready', { ns: 'materials' })}</h3>
                 <p className="text-sm text-muted-foreground">
-                  All materials have been generated successfully. You can now download and use them.
+                  {t('generatingDescription', { ns: 'materials' })}
                 </p>
               </div>
               <Button className="ml-auto">
                 <Download className="h-4 w-4 mr-2" />
-                Download All
+                {t('downloadAll', { ns: 'materials' })}
               </Button>
             </div>
           </CardContent>

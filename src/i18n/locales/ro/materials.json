@@ -20,7 +20,12 @@
   "status": {
     "ready": "Gata",
     "generating": "Se generează",
-    "error": "Eroare"
+    "error": "Eroare",
+    "pending": "În așteptare",
+    "completed": "Finalizat",
+    "failed": "Eșuat",
+    "approved": "Aprobat",
+    "rejected": "Respins"
   },
   "noMaterials": "Nu există materiale generate încă",
   "regenerate": "Regenerează",
