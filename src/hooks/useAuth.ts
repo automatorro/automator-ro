@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useTranslation('auth');
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -30,7 +32,7 @@ export function useAuth() {
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -42,14 +44,14 @@ export function useAuth() {
     
     if (error) {
       toast({
-        title: "Error",
+        title: t('errorTitle'),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Success",
-        description: "Check your email to confirm your account",
+        title: t('successTitle'),
+        description: t('signUpSuccess'),
       });
     }
     
@@ -64,9 +66,14 @@ export function useAuth() {
     
     if (error) {
       toast({
-        title: "Error",
+        title: t('errorTitle'),
         description: error.message,
         variant: "destructive",
+      });
+    } else {
+      toast({
+        title: t('successTitle'),
+        description: t('successDescription'),
       });
     }
     
@@ -77,13 +84,13 @@ export function useAuth() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`
+        redirectTo: `${window.location.origin}/dashboard`
       }
     });
     
     if (error) {
       toast({
-        title: "Error",
+        title: t('errorTitle'),
         description: error.message,
         variant: "destructive",
       });
@@ -97,7 +104,7 @@ export function useAuth() {
     
     if (error) {
       toast({
-        title: "Error",
+        title: t('errorTitle'),
         description: error.message,
         variant: "destructive",
       });

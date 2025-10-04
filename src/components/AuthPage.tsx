@@ -27,7 +27,7 @@ export function AuthPage() {
     try {
       if (isSignUp) {
         if (formData.password !== formData.confirmPassword) {
-          throw new Error("Passwords don't match");
+          throw new Error(t('passwordsDontMatch'));
         }
         await signUp(formData.email, formData.password);
       } else {
@@ -177,7 +177,7 @@ export function AuthPage() {
             <div className="relative my-6">
               <Separator />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-background px-2 text-xs text-muted-foreground">OR</div>
+                <div className="bg-background px-2 text-xs text-muted-foreground">{t('or')}</div>
               </div>
             </div>
 
@@ -190,12 +190,12 @@ export function AuthPage() {
               {googleLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting...
+                  {t('connecting')}
                 </>
               ) : (
                 <>
                   <Chrome className="mr-2 h-4 w-4" />
-                  Continue with Google
+                  {t('continueWithGoogle')}
                 </>
               )}
             </Button>
