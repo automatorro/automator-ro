@@ -27,6 +27,7 @@ export type Database = {
           file_size: number | null
           id: string
           material_type: string
+          pedagogical_metadata: Json | null
           status: string
           step_order: number
           title: string
@@ -44,6 +45,7 @@ export type Database = {
           file_size?: number | null
           id?: string
           material_type: string
+          pedagogical_metadata?: Json | null
           status?: string
           step_order: number
           title: string
@@ -61,6 +63,7 @@ export type Database = {
           file_size?: number | null
           id?: string
           material_type?: string
+          pedagogical_metadata?: Json | null
           status?: string
           step_order?: number
           title?: string
@@ -137,6 +140,8 @@ export type Database = {
           step_data: Json | null
           total_steps: number | null
           updated_at: string
+          validation_level: string | null
+          validation_warnings: string[] | null
           waiting_for_approval: boolean | null
         }
         Insert: {
@@ -151,6 +156,8 @@ export type Database = {
           step_data?: Json | null
           total_steps?: number | null
           updated_at?: string
+          validation_level?: string | null
+          validation_warnings?: string[] | null
           waiting_for_approval?: boolean | null
         }
         Update: {
@@ -165,6 +172,8 @@ export type Database = {
           step_data?: Json | null
           total_steps?: number | null
           updated_at?: string
+          validation_level?: string | null
+          validation_warnings?: string[] | null
           waiting_for_approval?: boolean | null
         }
         Relationships: [

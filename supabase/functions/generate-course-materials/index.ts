@@ -34,8 +34,10 @@ interface ValidationResult {
   metadata?: {
     bloom_levels?: string[];
     merrill_principles?: string[];
-    bloom_coverage?: number;
-    merrill_coverage?: number;
+    bloom_coverage_percent?: number;
+    merrill_coverage_percent?: number;
+    terminology_consistency?: number;
+    [key: string]: any; // Allow additional properties
   };
 }
 
@@ -779,7 +781,8 @@ function validateAndParseJSON(content: string, materialType: string, cumulativeC
     }
 
   } catch (error) {
-    result.errors.push(`CRITICAL: JSON parsing error - ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error';
+    result.errors.push(`CRITICAL: JSON parsing error - ${errorMessage}`);
     result.level = 'CRITICAL';
   }
 
@@ -1088,13 +1091,13 @@ async function generateSingleMaterial(supabase: any, course: any, material: any,
       .update({ status: 'failed' })
       .eq('id', material.id);
 
-    await supabase
-      .from('generation_pipelines')
-      .update({ 
-        status: 'failed',
-        error_message: error.message 
-      })
-      .eq('course_id', course.id);
+      await supabase
+        .from('generation_pipelines')
+        .update({ 
+          status: 'failed',
+          error_message: error instanceof Error ? error.message : 'Unknown error'
+        })
+        .eq('course_id', course.id);
       
     throw error;
   }
