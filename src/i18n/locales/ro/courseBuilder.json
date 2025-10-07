@@ -6,21 +6,9 @@
       "label": "Titlul cursului",
       "placeholder": "ex. Managementul Timpului pentru Profesioniști"
     },
-    "subject": {
-      "label": "Subiectul principal",
-      "placeholder": "ex. Productivitate și organizare"
-    },
     "duration": {
       "label": "Durata cursului",
       "placeholder": "ex. 8 ore (1 zi)"
-    },
-    "audience": {
-      "label": "Publicul țintă",
-      "placeholder": "ex. Manageri și lideri de echipă"
-    },
-    "objectives": {
-      "label": "Obiective principale",
-      "placeholder": "Descrie ce vor învăța participanții..."
     },
     "level": {
       "label": "Nivel de dificultate",
@@ -35,9 +23,22 @@
     },
     "tone": {
       "label": "Tonul cursului",
-      "formal": "Formal",
-      "informal": "Informal",
-      "technical": "Tehnic"
+      "professional": "Profesional",
+      "friendly": "Prietenos"
+    },
+    "environment": {
+      "label": "Mediul",
+      "academic": "Academic",
+      "corporate": "Corporativ"
+    },
+    "participants": {
+      "label": "Participanți țintă",
+      "specialists": "Specialiști",
+      "middleManagement": "Middle Management",
+      "topManagement": "Top Management",
+      "pupils": "Elevi",
+      "students": "Studenți",
+      "teachers": "Profesori"
     }
   },
   "generate": "Generează cursul",

@@ -72,7 +72,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
   const startGeneration = async (courseId: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-course-materials', {
-        body: { courseId }
+        body: { courseId, continueGeneration: true }
       });
 
       if (error) throw error;
@@ -180,7 +180,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                   )}
 
                   <div className="flex gap-2">
-                    {course.status === 'draft' && (
+                    {course.status === 'draft' && !pipeline && (
                       <Button
                         size="sm"
                         onClick={() => startGeneration(course.id)}
@@ -190,25 +190,26 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                         Start Generation
                       </Button>
                     )}
-                    {course.status === 'completed' && (
+                    {pipeline && (pipeline.status === 'failed' || (course.status === 'draft' && pipeline.status === 'running')) && (
                       <Button
                         size="sm"
-                        onClick={() => onSelectCourse(course.id)}
+                        onClick={() => startGeneration(course.id)}
                         className="flex-1"
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        {t('viewCourse')}
-                      </Button>
-                    )}
-                    {(course.status === 'generating' || course.status === 'completed') && (
-                      <Button
-                        size="sm"
                         variant="outline"
-                        onClick={() => onSelectCourse(course.id)}
                       >
-                        <Settings className="h-3 w-3" />
+                        <Play className="h-3 w-3 mr-1" />
+                        Resume
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant={course.status === 'completed' ? 'default' : 'outline'}
+                      onClick={() => onSelectCourse(course.id)}
+                      className={course.status === 'draft' && !pipeline ? '' : 'flex-1'}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      {t('viewCourse')}
+                    </Button>
                   </div>
 
                   <div className="text-xs text-muted-foreground border-t pt-3">

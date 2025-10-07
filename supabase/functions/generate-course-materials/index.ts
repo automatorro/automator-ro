@@ -14,6 +14,7 @@ interface CourseData {
   duration: string;
   level: string;
   environment: string;
+  participant_type: string;
   tone: string;
   language: string;
 }
@@ -97,9 +98,104 @@ VALIDATION REQUIREMENTS:
 
 // Material-specific prompts
 const PROMPTS = {
-  agenda: `Generate a comprehensive course agenda in JSON format.
+  objectives: `Generate comprehensive learning objectives in JSON format.
+
+This is the FIRST material to be generated. Base it ONLY on course details, NOT on any agenda.
+
+CONTEXT:
+- Course: {title}
+- Subject: {subject}
+- Duration: {duration}
+- Level: {level}
+- Environment: {environment}
+- Participants: {participants}
+- Tone: {tone}
+
+INSTRUCTION:
+Define clear, measurable learning objectives that:
+1. Set the thematic framework for the entire course
+2. Are appropriate for {participants} in a {environment} environment
+3. Cover different Bloom levels (at least 4 out of 6)
+4. Can be realistically achieved in {duration}
+5. Match the {level} difficulty level
+
+OUTPUT JSON STRUCTURE:
+{
+  "objectives": {
+    "course_overview": "Brief overview of what the course covers",
+    "learning_outcomes": [
+      {
+        "outcome": "Clear, specific learning outcome",
+        "bloom_level": "One of: Remember, Understand, Apply, Analyze, Evaluate, Create",
+        "success_criteria": "How this will be measured"
+      }
+    ],
+    "prerequisites": ["Any required prior knowledge"],
+    "target_skills": ["Key skills participants will develop"],
+    "pedagogical_metadata": {
+      "bloom_levels": ["List all bloom levels used"],
+      "bloom_coverage_percent": 60-100,
+      "merrill_principles": ["All 5: Activation, Demonstration, Application, Integration, Task-centered"],
+      "merrill_coverage_percent": 100,
+      "terminology_consistency": 100,
+      "participant_adaptation": "How content is adapted for {participants}"
+    }
+  }
+}
+
+CRITICAL: This defines the scope. Agenda and all subsequent materials must align with ONLY these objectives.`,
+
+  agenda: `Generate a detailed course agenda in JSON format that STRICTLY FOLLOWS the Learning Objectives.
 
 CUMULATIVE CONTEXT:
+{cumulative_context}
+
+PREVIOUS MATERIALS:
+{previous_materials}
+
+CRITICAL RULES:
+- DO NOT introduce topics not in the Objectives
+- Use EXACT terminology from Objectives
+- Total duration MUST equal {duration}
+- Adapt activities and pace for {participants}
+- Environment: {environment}
+
+OUTPUT JSON STRUCTURE:
+{
+  "agenda": {
+    "sessions": [
+      {
+        "session_number": 1,
+        "title": "Session title from objectives",
+        "duration_minutes": 60,
+        "topics": ["Topics ONLY from objectives"],
+        "activities": ["Appropriate for {participants}"],
+        "bloom_levels": ["Levels for this session"],
+        "merrill_principle": "Primary principle for this session"
+      }
+    ],
+    "breaks": [
+      { "after_session": 2, "duration_minutes": 15, "type": "coffee break" }
+    ],
+    "total_duration_minutes": "Must match {duration}",
+    "pedagogical_metadata": {
+      "bloom_levels": ["All levels used across agenda"],
+      "bloom_coverage_percent": 60-100,
+      "merrill_principles": ["All 5 must be represented"],
+      "merrill_coverage_percent": 100,
+      "terminology_consistency": 100,
+      "participant_engagement_strategies": "Strategies for {participants}"
+    }
+  }
+}
+
+VALIDATION:
+- Bloom coverage >= 60%
+- Merrill = 100% (all 5 principles across sessions)
+- Total time matches {duration}
+- All topics from objectives covered`,
+
+  slides: `CUMULATIVE CONTEXT:
 {cumulative_context}
 
 COURSE INFORMATION:
@@ -107,8 +203,8 @@ COURSE INFORMATION:
 - Duration: {duration}
 - Level: {level}
 - Tone: {tone}
-- Language: {language}
-- Target environment: {environment}
+- Participants: {participants}
+- Environment: {environment}
 
 OUTPUT REQUIREMENTS:
 Return ONLY a valid JSON object (no markdown, no code blocks) with this exact structure:
@@ -958,12 +1054,15 @@ async function generateSingleMaterial(supabase: any, course: any, material: any,
     }
 
     // Build prompt with course data and cumulative context
+    const participantLabel = course.participant_type || 'participants';
     let prompt = promptTemplate
       .replace(/{cumulative_context}/g, contextString)
+      .replace(/{title}/g, course.title)
       .replace(/{subject}/g, course.subject)
       .replace(/{duration}/g, course.duration)
       .replace(/{level}/g, course.level)
       .replace(/{environment}/g, course.environment)
+      .replace(/{participants}/g, participantLabel)
       .replace(/{tone}/g, course.tone)
       .replace(/{language}/g, course.language);
 
@@ -1148,8 +1247,8 @@ serve(async (req) => {
       }
     });
 
-    // For step-by-step generation
-    if (continueGeneration || materialType) {
+    // For step-by-step generation (default behavior now)
+    if (continueGeneration !== false) {
       const { data: nextMaterial, error: materialError } = await supabase
         .from('course_materials')
         .select('*')

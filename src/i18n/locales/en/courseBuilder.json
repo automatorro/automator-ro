@@ -6,21 +6,9 @@
       "label": "Course title",
       "placeholder": "e.g. Time Management for Professionals"
     },
-    "subject": {
-      "label": "Main subject",
-      "placeholder": "e.g. Productivity and organization"
-    },
     "duration": {
       "label": "Course duration",
       "placeholder": "e.g. 8 hours (1 day)"
-    },
-    "audience": {
-      "label": "Target audience",
-      "placeholder": "e.g. Managers and team leaders"
-    },
-    "objectives": {
-      "label": "Main objectives",
-      "placeholder": "Describe what participants will learn..."
     },
     "level": {
       "label": "Difficulty level",
@@ -35,9 +23,22 @@
     },
     "tone": {
       "label": "Course tone",
-      "formal": "Formal",
-      "informal": "Informal",
-      "technical": "Technical"
+      "professional": "Professional",
+      "friendly": "Friendly"
+    },
+    "environment": {
+      "label": "Environment",
+      "academic": "Academic",
+      "corporate": "Corporate"
+    },
+    "participants": {
+      "label": "Target participants",
+      "specialists": "Specialists",
+      "middleManagement": "Middle Management",
+      "topManagement": "Top Management",
+      "pupils": "Pupils",
+      "students": "Students",
+      "teachers": "Teachers"
     }
   },
   "generate": "Generate course",

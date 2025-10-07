@@ -13,12 +13,11 @@ import { Loader2 } from 'lucide-react';
 
 interface CourseFormData {
   title: string;
-  description: string;
-  subject: string;
   duration: string;
   level: 'beginner' | 'intermediate' | 'advanced';
   environment: 'academic' | 'corporate';
-  tone: 'formal' | 'casual' | 'professional' | 'friendly';
+  participantType: string;
+  tone: 'professional' | 'friendly';
   language: 'en' | 'ro';
 }
 
@@ -29,11 +28,10 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CourseFormData>({
     title: '',
-    description: '',
-    subject: '',
     duration: '',
     level: 'beginner',
     environment: 'corporate',
+    participantType: 'specialists',
     tone: 'professional',
     language: 'en',
   });
@@ -52,7 +50,15 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
         .from('courses')
         .insert({
           user_id: user.id,
-          ...formData,
+          title: formData.title,
+          subject: formData.title, // Set subject same as title for DB compatibility
+          description: '', // Will be generated as objectives
+          duration: formData.duration,
+          level: formData.level,
+          environment: formData.environment,
+          participant_type: formData.participantType,
+          tone: formData.tone,
+          language: formData.language,
           status: 'draft'
         })
         .select()
@@ -73,13 +79,13 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
       if (pipelineError) throw pipelineError;
 
       const steps = [
-        { type: 'agenda', order: 1, title: 'Course Agenda' },
-        { type: 'objectives', order: 2, title: 'Learning Objectives' },
+        { type: 'objectives', order: 1, title: 'Learning Objectives' },
+        { type: 'agenda', order: 2, title: 'Course Agenda' },
         { type: 'slides', order: 3, title: 'Presentation Slides' },
         { type: 'trainer_notes', order: 4, title: 'Trainer Notes' },
         { type: 'exercises', order: 5, title: 'Practical Exercises' },
         { type: 'manual', order: 6, title: 'Participant Manual' },
-        { type: 'tests', order: 7, title: 'Tests & Quizzes' },
+        { type: 'assessment', order: 7, title: 'Assessment' },
         { type: 'resources', order: 8, title: 'Additional Resources' },
       ];
 
@@ -106,11 +112,10 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
       setFormData({
         title: '',
-        description: '',
-        subject: '',
         duration: '',
         level: 'beginner',
         environment: 'corporate',
+        participantType: 'specialists',
         tone: 'professional',
         language: 'en',
       });
@@ -137,37 +142,14 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">{t('form.courseTitle.label')}</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder={t('form.courseTitle.placeholder')}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subject">{t('form.subject.label')}</Label>
-              <Input
-                id="subject"
-                value={formData.subject}
-                onChange={(e) => handleInputChange('subject', e.target.value)}
-                placeholder={t('form.subject.placeholder')}
-                required
-              />
-            </div>
-          </div>
-
           <div className="space-y-2">
-            <Label htmlFor="description">{t('form.objectives.label')}</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder={t('form.objectives.placeholder')}
-              rows={3}
+            <Label htmlFor="title">{t('form.courseTitle.label')}</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder={t('form.courseTitle.placeholder')}
+              required
             />
           </div>
 
@@ -199,16 +181,57 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="environment">{t('form.environment.label')}</Label>
+              <Select value={formData.environment} onValueChange={(value: any) => {
+                handleInputChange('environment', value);
+                // Reset participant type when environment changes
+                const defaultParticipant = value === 'corporate' ? 'specialists' : 'students';
+                handleInputChange('participantType', defaultParticipant);
+              }}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="academic">{t('form.environment.academic')}</SelectItem>
+                  <SelectItem value="corporate">{t('form.environment.corporate')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="participants">{t('form.participants.label')}</Label>
+              <Select value={formData.participantType} onValueChange={(value: any) => handleInputChange('participantType', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {formData.environment === 'corporate' ? (
+                    <>
+                      <SelectItem value="specialists">{t('form.participants.specialists')}</SelectItem>
+                      <SelectItem value="middleManagement">{t('form.participants.middleManagement')}</SelectItem>
+                      <SelectItem value="topManagement">{t('form.participants.topManagement')}</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="pupils">{t('form.participants.pupils')}</SelectItem>
+                      <SelectItem value="students">{t('form.participants.students')}</SelectItem>
+                      <SelectItem value="teachers">{t('form.participants.teachers')}</SelectItem>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="tone">{t('form.tone.label')}</Label>
               <Select value={formData.tone} onValueChange={(value: any) => handleInputChange('tone', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="professional">{t('form.tone.formal')}</SelectItem>
-                  <SelectItem value="formal">{t('form.tone.formal')}</SelectItem>
-                  <SelectItem value="friendly">{t('form.tone.informal')}</SelectItem>
-                  <SelectItem value="casual">{t('form.tone.informal')}</SelectItem>
+                  <SelectItem value="professional">{t('form.tone.professional')}</SelectItem>
+                  <SelectItem value="friendly">{t('form.tone.friendly')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

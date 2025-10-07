@@ -88,6 +88,7 @@ export type Database = {
           id: string
           language: string
           level: string
+          participant_type: string | null
           status: string
           subject: string
           title: string
@@ -103,6 +104,7 @@ export type Database = {
           id?: string
           language?: string
           level: string
+          participant_type?: string | null
           status?: string
           subject: string
           title: string
@@ -118,6 +120,7 @@ export type Database = {
           id?: string
           language?: string
           level?: string
+          participant_type?: string | null
           status?: string
           subject?: string
           title?: string

@@ -191,7 +191,7 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       setGenerationStarted(true);
       
       const { error } = await supabase.functions.invoke('generate-course-materials', {
-        body: { courseId }
+        body: { courseId, continueGeneration: true }
       });
 
       if (error) throw error;
@@ -284,7 +284,7 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
   if (!course) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">{t('noMaterials', { ns: 'materials' })}</p>
+        <p className="text-muted-foreground">Course not found</p>
         <Button onClick={onBack} className="mt-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           {t('backToDashboard', { ns: 'materials' })}
@@ -292,6 +292,8 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
       </div>
     );
   }
+
+  const hasNoGeneratedContent = materials.length === 0 || materials.every(m => !m.content && !m.approved_content);
 
   // Show material editor if editing
   if (editingMaterial) {
@@ -339,21 +341,41 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         {getStatusBadge(course.status)}
       </div>
 
-      {/* Start Generation Button */}
-      {canStartGeneration && (
+      {/* Start/Resume Generation CTA */}
+      {hasNoGeneratedContent && course.status === 'draft' && !generationStarted && (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <Play className="h-6 w-6 text-primary" />
               <div className="flex-1">
-                <h3 className="font-semibold text-primary">{t('generating', { ns: 'materials' })}</h3>
+                <h3 className="font-semibold text-primary">Start Course Generation</h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('generatingDescription', { ns: 'materials' })}
+                  Begin generating AI-powered course materials
                 </p>
               </div>
               <Button onClick={startGeneration} className="ml-auto">
                 <Play className="h-4 w-4 mr-2" />
-                {t('generating', { ns: 'materials' })}
+                Start Generation
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {pipeline?.status === 'failed' && !generationStarted && (
+        <Card className="border-destructive/20 bg-destructive/5">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-6 w-6 text-destructive" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-destructive">Generation Failed</h3>
+                <p className="text-sm text-muted-foreground">
+                  {pipeline.error_message || 'An error occurred during generation'}
+                </p>
+              </div>
+              <Button onClick={startGeneration} variant="outline" className="ml-auto">
+                <Play className="h-4 w-4 mr-2" />
+                Resume Generation
               </Button>
             </div>
           </CardContent>
