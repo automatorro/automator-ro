@@ -34,6 +34,7 @@ interface Course {
   duration: string;
   level: string;
   environment: string;
+  participant_type: string;
   tone: string;
   language: string;
   status: string;
@@ -335,7 +336,7 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         <div className="flex-1">
           <h2 className="text-3xl font-bold tracking-tight">{course.title}</h2>
           <p className="text-muted-foreground">
-            {course.subject} • {course.duration} • {course.level}
+            {course.environment} • {course.participant_type} • {course.duration}
           </p>
         </div>
         {getStatusBadge(course.status)}

@@ -16,6 +16,7 @@ interface Course {
   duration: string;
   level: string;
   environment: string;
+  participant_type: string;
   language: string;
   status: string;
   created_at: string;
@@ -148,7 +149,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                       <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
                       <CardDescription className="flex items-center gap-1 text-sm">
                         <BookOpen className="h-3 w-3" />
-                        {course.subject}
+                        {course.environment} • {course.participant_type}
                       </CardDescription>
                     </div>
                     {getStatusBadge(course.status)}
