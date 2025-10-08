@@ -22,8 +22,18 @@ function AppContent() {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user && location.pathname !== '/auth') {
-      navigate('/auth');
+    // Check if user is coming from Google OAuth callback
+    const isOAuthCallback = window.location.hash.includes('access_token');
+    
+    if (!loading && !user && location.pathname !== '/auth' && !isOAuthCallback) {
+      // Add a small delay to allow session to establish
+      const timer = setTimeout(() => {
+        if (!user) {
+          navigate('/auth');
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
   }, [user, loading, navigate, location]);
 

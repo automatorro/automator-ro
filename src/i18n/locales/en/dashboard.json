@@ -12,5 +12,14 @@
   "deleteCourse": "Delete course",
   "courseCreated": "Created at",
   "materials": "Materials",
-  "loading": "Loading courses..."
+  "loading": "Loading courses...",
+  "startGeneration": "Start Generation",
+  "resume": "Resume",
+  "status": {
+    "draft": "Draft",
+    "generating": "Generating",
+    "completed": "Completed",
+    "failed": "Failed",
+    "pending": "Pending"
+  }
 }

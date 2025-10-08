@@ -294,7 +294,27 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
     );
   }
 
-  const hasNoGeneratedContent = materials.length === 0 || materials.every(m => !m.content && !m.approved_content);
+  const hasNoMaterials = materials.length === 0;
+  const hasNoPipeline = !pipeline;
+  const isPipelineFailed = pipeline?.status === 'failed';
+  const isPipelineRunning = pipeline?.status === 'running';
+  const isPipelinePending = pipeline?.status === 'pending';
+  const isCourseStatusDraft = course?.status === 'draft';
+  const hasNoGeneratedContent = materials.every(m => !m.content && !m.approved_content);
+  
+  // Show "no materials" message only when:
+  // - No materials exist AND
+  // - No pipeline exists OR pipeline is in 'pending' status
+  const shouldShowNoMaterials = hasNoMaterials && (hasNoPipeline || isPipelinePending);
+  
+  // Show "Start Generation" CTA only for draft courses without pipeline
+  const shouldShowStartCTA = isCourseStatusDraft && hasNoPipeline && !generationStarted;
+  
+  // Show "Resume" CTA for failed pipelines
+  const shouldShowResumeCTA = isPipelineFailed && !generationStarted;
+  
+  // Show progress for active pipelines
+  const shouldShowProgress = pipeline && !isPipelinePending;
 
   // Show material editor if editing
   if (editingMaterial) {
@@ -342,8 +362,23 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         {getStatusBadge(course.status)}
       </div>
 
-      {/* Start/Resume Generation CTA */}
-      {hasNoGeneratedContent && course.status === 'draft' && !generationStarted && (
+      {/* No Materials Message */}
+      {shouldShowNoMaterials && (
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <CardTitle className="mb-2">{t('noMaterials', { ns: 'materials' })}</CardTitle>
+            <CardDescription>
+              {isCourseStatusDraft 
+                ? 'Start generation to create course materials' 
+                : 'Materials will appear here once generated'}
+            </CardDescription>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Start Generation CTA - only for draft without pipeline */}
+      {shouldShowStartCTA && (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -356,14 +391,15 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
               </div>
               <Button onClick={startGeneration} className="ml-auto">
                 <Play className="h-4 w-4 mr-2" />
-                Start Generation
+                {t('startGeneration', { ns: 'dashboard' })}
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {pipeline?.status === 'failed' && !generationStarted && (
+      {/* Resume Generation CTA - only for failed pipeline */}
+      {shouldShowResumeCTA && (
         <Card className="border-destructive/20 bg-destructive/5">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -376,9 +412,44 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
               </div>
               <Button onClick={startGeneration} variant="outline" className="ml-auto">
                 <Play className="h-4 w-4 mr-2" />
-                Resume Generation
+                {t('resume', { ns: 'dashboard' })}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Progress Card - for active pipelines */}
+      {shouldShowProgress && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Loader2 className={`h-5 w-5 ${isPipelineRunning ? 'animate-spin' : ''}`} />
+              {t('generating', { ns: 'materials' })}
+            </CardTitle>
+            <CardDescription>
+              {isPipelineRunning ? t('status.generating', { ns: 'materials' }) : 
+               pipeline.status === 'completed' ? t('status.ready', { ns: 'materials' }) :
+               pipeline.status === 'failed' ? t('status.error', { ns: 'materials' }) : 
+               t('status.generating', { ns: 'materials' })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>{t('generating', { ns: 'materials' })}</span>
+                <span>{pipeline.progress_percent}%</span>
+              </div>
+              <Progress value={pipeline.progress_percent} className="h-2" />
+              <div className="text-sm text-muted-foreground">
+                {pipeline.current_step} / {pipeline.total_steps}
+              </div>
+            </div>
+            {pipeline.error_message && (
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <p className="text-sm text-destructive">{pipeline.error_message}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -410,38 +481,6 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         </Card>
       )}
 
-      {pipeline && pipeline.status !== 'pending' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Loader2 className={`h-5 w-5 ${pipeline.status === 'running' ? 'animate-spin' : ''}`} />
-              {t('generating', { ns: 'materials' })}
-            </CardTitle>
-            <CardDescription>
-              {pipeline.status === 'running' ? t('status.generating', { ns: 'materials' }) : 
-               pipeline.status === 'completed' ? t('status.ready', { ns: 'materials' }) :
-               pipeline.status === 'failed' ? t('status.error', { ns: 'materials' }) : t('status.generating', { ns: 'materials' })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>{t('generating', { ns: 'materials' })}</span>
-                <span>{pipeline.progress_percent}%</span>
-              </div>
-              <Progress value={pipeline.progress_percent} className="h-2" />
-              <div className="text-sm text-muted-foreground">
-                {pipeline.current_step} / {pipeline.total_steps}
-              </div>
-            </div>
-            {pipeline.error_message && (
-              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <p className="text-sm text-destructive">{pipeline.error_message}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {materials.map((material) => {

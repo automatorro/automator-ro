@@ -12,5 +12,14 @@
   "deleteCourse": "Șterge cursul",
   "courseCreated": "Creat la",
   "materials": "Materiale",
-  "loading": "Se încarcă cursurile..."
+  "loading": "Se încarcă cursurile...",
+  "startGeneration": "Pornește generarea",
+  "resume": "Reia",
+  "status": {
+    "draft": "Draft",
+    "generating": "Se generează",
+    "completed": "Finalizat",
+    "failed": "Eșuat",
+    "pending": "În așteptare"
+  }
 }

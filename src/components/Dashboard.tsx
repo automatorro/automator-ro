@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { BookOpen, Clock, Globe, Settings, Play, Eye } from 'lucide-react';
+import { BookOpen, Clock, Globe, Settings, Play, Eye, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Course {
@@ -100,7 +100,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
 
     return (
       <Badge variant={variants[status] || 'default'} className={colors[status]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {t(`status.${status}`)}
       </Badge>
     );
   };
@@ -180,7 +180,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                     </div>
                   )}
 
-                  <div className="flex gap-2">
+                   <div className="flex gap-2">
                     {course.status === 'draft' && !pipeline && (
                       <Button
                         size="sm"
@@ -188,7 +188,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                         className="flex-1"
                       >
                         <Play className="h-3 w-3 mr-1" />
-                        Start Generation
+                        {t('startGeneration')}
                       </Button>
                     )}
                     {pipeline && (pipeline.status === 'failed' || (course.status === 'draft' && pipeline.status === 'running')) && (
@@ -198,8 +198,8 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                         className="flex-1"
                         variant="outline"
                       >
-                        <Play className="h-3 w-3 mr-1" />
-                        Resume
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        {t('resume')}
                       </Button>
                     )}
                     <Button

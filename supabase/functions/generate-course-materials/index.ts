@@ -1087,7 +1087,12 @@ serve(async (req) => {
   }
 
   try {
-    const { courseId, continueGeneration, materialType } = await req.json();
+    const { courseId, continueGeneration = true, materialType } = await req.json();
+
+    console.log('=== Generation Request ===');
+    console.log('Course ID:', courseId);
+    console.log('Continue Generation:', continueGeneration);
+    console.log('Material Type:', materialType || 'auto');
 
     if (!courseId) {
       throw new Error('Course ID is required');
@@ -1098,6 +1103,8 @@ serve(async (req) => {
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
     if (!geminiApiKey) {
+      console.error('=== Configuration Error ===');
+      console.error('GEMINI_API_KEY is not configured');
       throw new Error('Gemini API key not configured');
     }
 
@@ -1110,7 +1117,17 @@ serve(async (req) => {
       .eq('id', courseId)
       .single();
 
-    if (courseError) throw courseError;
+    if (courseError) {
+      console.error('=== Database Error ===');
+      console.error('Failed to fetch course:', courseError);
+      throw courseError;
+    }
+
+    console.log('=== Course Data ===');
+    console.log('Title:', course.title);
+    console.log('Environment:', course.environment);
+    console.log('Participant Type:', course.participant_type);
+    console.log('Language:', course.language);
 
     // Get all generated materials for context
     const { data: existingMaterials } = await supabase
@@ -1126,8 +1143,13 @@ serve(async (req) => {
       }
     });
 
+    console.log('=== Existing Materials ===');
+    console.log('Completed materials count:', Object.keys(generatedContent).length);
+    console.log('Material types:', Object.keys(generatedContent));
+
     // For step-by-step generation (default behavior now)
     if (continueGeneration !== false) {
+      console.log('=== Fetching Next Material ===');
       const { data: nextMaterial, error: materialError } = await supabase
         .from('course_materials')
         .select('*')
@@ -1138,11 +1160,18 @@ serve(async (req) => {
         .single();
 
       if (materialError || !nextMaterial) {
+        console.log('=== No Materials to Generate ===');
+        console.log('Error:', materialError);
         return new Response(
           JSON.stringify({ error: 'No materials to generate' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
+      console.log('=== Generating Material ===');
+      console.log('Material Type:', nextMaterial.material_type);
+      console.log('Step Order:', nextMaterial.step_order);
+      console.log('Status:', nextMaterial.status);
 
       // Generate single material
       await generateSingleMaterial(supabase, course, nextMaterial, geminiApiKey, generatedContent);
@@ -1169,7 +1198,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Generation error:', error);
+    console.error('=== Generation Error ===');
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Full error:', error);
 
     return new Response(
       JSON.stringify({ 
