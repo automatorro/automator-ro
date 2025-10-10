@@ -294,6 +294,7 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
     );
   }
 
+  const [exportingIds, setExportingIds] = useState<string[]>([]);
   const hasNoMaterials = materials.length === 0;
   const hasNoPipeline = !pipeline;
   const isPipelineFailed = pipeline?.status === 'failed';
@@ -486,6 +487,23 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
         {materials.map((material) => {
           const Icon = materialIcons[material.material_type] || FileText;
           
+          const handleExport = async () => {
+            setExportingIds((prev) => [...prev, material.id]);
+            try {
+              const { data, error } = await supabase.functions.invoke('export-material', {
+                body: { materialId: material.id },
+              });
+              if (error) throw error;
+              if (data?.download_url) {
+                window.open(data.download_url, '_blank');
+              }
+            } catch (err) {
+              console.error('Export error', err);
+            } finally {
+              setExportingIds((prev) => prev.filter((id) => id !== material.id));
+            }
+          };
+
           return (
             <Card key={material.id} className="relative hover:shadow-lg transition-all duration-200">
               <CardHeader className="pb-3">
@@ -528,12 +546,19 @@ export function MaterialsViewer({ courseId, onBack }: { courseId: string; onBack
                           <Eye className="h-3 w-3 mr-1" />
                           {t('preview', { ns: 'materials' })}
                         </Button>
-                        {material.download_url && (
-                          <Button size="sm">
-                            <Download className="h-3 w-3 mr-1" />
-                            {t('download', { ns: 'materials' })}
-                          </Button>
-                        )}
+                        <Button size="sm" onClick={handleExport} disabled={exportingIds.includes(material.id)}>
+                          {exportingIds.includes(material.id) ? (
+                            <>
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              {t('actions.loading', { ns: 'common' })}
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-3 w-3 mr-1" />
+                              {t('download', { ns: 'materials' })}
+                            </>
+                          )}
+                        </Button>
                       </>
                     )}
                     {(material.content || material.approved_content) && material.status !== 'completed' && (

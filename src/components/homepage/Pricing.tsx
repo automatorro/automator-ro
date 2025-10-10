@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { trackEvent } from '@/lib/analytics';
 
 export const Pricing = () => {
   const { t } = useTranslation('homepage');
@@ -63,7 +64,7 @@ export const Pricing = () => {
               <Button 
                 className="w-full text-lg py-6" 
                 size="lg"
-                onClick={() => navigate('/auth')}
+                onClick={() => { trackEvent('cta_pricing_free', { source: 'pricing' }); navigate('/auth'); }}
               >
                 {t('pricing.free.cta')}
               </Button>
@@ -119,13 +120,14 @@ export const Pricing = () => {
               <Button 
                 className="w-full text-lg py-6 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90" 
                 size="lg"
+                onClick={() => { trackEvent('cta_pricing_pro', { source: 'pricing' }); navigate('/billing'); }}
               >
                 {t('pricing.pro.cta')}
               </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+          </CardContent>
+         </Card>
+       </div>
+     </div>
     </section>
   );
 };

@@ -13,11 +13,13 @@ import { BookOpen, User, CreditCard, Settings, LogOut, Moon, Sun } from 'lucide-
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation(['common']);
+  const navigate = useNavigate();
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
@@ -73,11 +75,11 @@ export function Header() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/billing')}>
                 <User className="mr-2 h-4 w-4" />
                 {t('navigation.profile')}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/billing')}>
                 <CreditCard className="mr-2 h-4 w-4" />
                 {t('navigation.billing')}
               </DropdownMenuItem>

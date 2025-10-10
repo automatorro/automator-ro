@@ -11,7 +11,7 @@ import { Loader2, BookOpen, Chrome } from 'lucide-react';
 
 export function AuthPage() {
   const { t } = useTranslation('auth');
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithMagicLink } = useAuth();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -53,6 +53,18 @@ export function AuthPage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMagicLink = async () => {
+    if (!formData.email) return;
+    setLoading(true);
+    try {
+      await signInWithMagicLink(formData.email);
+    } catch (error) {
+      console.error('Magic link error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -119,6 +131,29 @@ export function AuthPage() {
                     )}
                   </Button>
                 </form>
+
+                <div className="relative my-6">
+                  <Separator />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-background px-2 text-xs text-muted-foreground">{t('or')}</div>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleMagicLink}
+                  disabled={loading || !formData.email}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t('connecting')}
+                    </>
+                  ) : (
+                    t('sendMagicLink')
+                  )}
+                </Button>
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-4">

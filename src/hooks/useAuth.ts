@@ -99,6 +99,30 @@ export function useAuth() {
     return { error };
   };
 
+  const signInWithMagicLink = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+
+    if (error) {
+      toast({
+        title: t('errorTitle'),
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: t('magicLinkTitle'),
+        description: t('magicLinkDescription'),
+      });
+    }
+
+    return { error };
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     
@@ -120,6 +144,7 @@ export function useAuth() {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithMagicLink,
     signOut,
   };
 }

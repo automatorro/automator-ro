@@ -1154,7 +1154,7 @@ serve(async (req) => {
         .from('course_materials')
         .select('*')
         .eq('course_id', courseId)
-        .or('status.eq.pending,status.eq.rejected,approval_status.eq.rejected')
+        .or('status.eq.pending,status.eq.rejected,status.eq.failed,approval_status.eq.rejected')
         .order('step_order')
         .limit(1)
         .single();

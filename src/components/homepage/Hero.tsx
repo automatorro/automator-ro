@@ -3,10 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BookOpen, Users, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { trackEvent } from '@/lib/analytics';
 
 export const Hero = () => {
   const { t } = useTranslation('homepage');
   const navigate = useNavigate();
+  const [demoOpen, setDemoOpen] = useState(false);
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-20">
@@ -36,7 +40,7 @@ export const Hero = () => {
             <Button 
               size="lg" 
               className="text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-              onClick={() => navigate('/auth')}
+              onClick={() => { trackEvent('cta_get_started', { source: 'hero' }); navigate('/auth'); }}
             >
               {t('hero.ctaPrimary')}
             </Button>
@@ -44,6 +48,7 @@ export const Hero = () => {
               size="lg" 
               variant="outline" 
               className="text-lg px-8 py-6 backdrop-blur-sm bg-background/50 hover:bg-background/80 border-2 transition-all hover:scale-105"
+              onClick={() => { trackEvent('cta_watch_demo', { source: 'hero' }); setDemoOpen(true); }}
             >
               {t('hero.ctaSecondary')}
             </Button>
@@ -89,6 +94,20 @@ export const Hero = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={demoOpen} onOpenChange={setDemoOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{t('hero.ctaSecondary')}</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video bg-muted flex items-center justify-center rounded-md">
+            <div className="text-center space-y-2">
+              <p className="font-semibold">Demo video placeholder</p>
+              <p className="text-sm text-muted-foreground">Real content coming soon</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
