@@ -41,10 +41,12 @@ function AppContent() {
     if (location.pathname.includes('/dashboard/new-course')) {
       setCurrentView('builder');
     } else if (location.pathname.includes('/dashboard/courses/')) {
-      const courseId = location.pathname.split('/').pop();
+      const parts = location.pathname.split('/');
+      const isEdit = parts[parts.length - 1] === 'edit';
+      const courseId = isEdit ? parts[parts.length - 2] : parts[parts.length - 1];
       if (courseId) {
         setSelectedCourseId(courseId);
-        setCurrentView('materials');
+        setCurrentView(isEdit ? 'builder' : 'materials');
       }
     } else if (location.pathname.includes('/dashboard')) {
       setCurrentView('dashboard');
@@ -113,7 +115,7 @@ function AppContent() {
                 ← {t('title')}
               </Button>
             </div>
-            <CourseBuilder onCourseCreated={handleCourseCreated} />
+            <CourseBuilder onCourseCreated={handleCourseCreated} courseId={selectedCourseId || undefined} />
           </div>
         )}
 

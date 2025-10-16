@@ -6,7 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { BookOpen, Clock, Globe, Settings, Play, Eye, RefreshCw } from 'lucide-react';
+import { BookOpen, Clock, Globe, Settings, Play, Eye, RefreshCw, Pencil, Trash } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 interface Course {
@@ -37,6 +38,8 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
   const [courses, setCourses] = useState<Course[]>([]);
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -80,6 +83,25 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
       loadData();
     } catch (error) {
       console.error('Error starting generation:', error);
+    }
+  };
+
+  const deleteCourse = async (courseId: string) => {
+    const confirmDelete = window.confirm('Sigur vrei să ștergi acest curs?');
+    if (!confirmDelete) return;
+    try {
+      setDeletingId(courseId);
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseId);
+      if (error) throw error;
+      setCourses(prev => prev.filter(c => c.id !== courseId));
+      setPipelines(prev => prev.filter(p => p.course_id !== courseId));
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -180,7 +202,7 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                     </div>
                   )}
 
-                   <div className="flex gap-2">
+                  <div className="flex gap-2">
                     {course.status === 'draft' && !pipeline && (
                       <Button
                         size="sm"
@@ -210,6 +232,28 @@ export function Dashboard({ onSelectCourse }: { onSelectCourse: (courseId: strin
                     >
                       <Eye className="h-3 w-3 mr-1" />
                       {t('viewCourse')}
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/dashboard/courses/${course.id}/edit`)}
+                      className="flex-1"
+                    >
+                      <Pencil className="h-3 w-3 mr-1" />
+                      Editează
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteCourse(course.id)}
+                      disabled={deletingId === course.id}
+                      className="flex-1"
+                    >
+                      <Trash className="h-3 w-3 mr-1" />
+                      {deletingId === course.id ? 'Ștergere...' : 'Șterge'}
                     </Button>
                   </div>
 

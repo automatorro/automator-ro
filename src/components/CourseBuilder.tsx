@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,7 @@ interface CourseFormData {
   language: 'en' | 'ro';
 }
 
-export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId: string) => void }) {
+export function CourseBuilder({ onCourseCreated, courseId }: { onCourseCreated: (courseId: string) => void; courseId?: string }) {
   const { t } = useTranslation('courseBuilder');
   const { user } = useAuth();
   const { toast } = useToast();
@@ -35,10 +35,49 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
     tone: 'professional',
     language: 'en',
   });
+  const isEdit = !!courseId;
+  const [loadingCourse, setLoadingCourse] = useState(false);
 
   const handleInputChange = (field: keyof CourseFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    const loadCourse = async () => {
+      if (!isEdit || !courseId || !user) return;
+      setLoadingCourse(true);
+      try {
+        const { data: course, error } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('id', courseId)
+          .single();
+
+        if (error) throw error;
+
+        setFormData({
+          title: course?.title || '',
+          duration: course?.duration || '',
+          level: (course?.level as CourseFormData['level']) || 'beginner',
+          environment: (course?.environment as CourseFormData['environment']) || 'corporate',
+          participantType: course?.participant_type || 'specialists',
+          tone: (course?.tone as CourseFormData['tone']) || 'professional',
+          language: (course?.language as CourseFormData['language']) || 'en',
+        });
+      } catch (err) {
+        console.error('Error loading course:', err);
+        toast({
+          title: 'Eroare',
+          description: 'Cursul nu a putut fi încărcat.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingCourse(false);
+      }
+    };
+
+    loadCourse();
+  }, [isEdit, courseId, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +85,33 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
 
     setLoading(true);
     try {
+      if (isEdit && courseId) {
+        const { data: updatedCourse, error: updateError } = await supabase
+          .from('courses')
+          .update({
+            title: formData.title,
+            subject: formData.title,
+            duration: formData.duration,
+            level: formData.level,
+            environment: formData.environment,
+            participant_type: formData.participantType,
+            tone: formData.tone,
+            language: formData.language,
+          })
+          .eq('id', courseId)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: 'Curs actualizat',
+          description: 'Datele cursului au fost salvate.',
+        });
+
+        onCourseCreated(updatedCourse.id);
+        return;
+      }
       const { data: course, error: courseError } = await supabase
         .from('courses')
         .insert({
@@ -136,9 +202,9 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
     <Card className="w-full max-w-2xl mx-auto backdrop-blur-lg bg-white/70 dark:bg-gray-900/70 border-white/20 shadow-2xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          {t('title')}
+          {isEdit ? 'Editează cursul' : t('title')}
         </CardTitle>
-        <CardDescription>{t('subtitle')}</CardDescription>
+        <CardDescription>{isEdit ? 'Modifică detaliile cursului și salvează.' : t('subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -252,15 +318,15 @@ export function CourseBuilder({ onCourseCreated }: { onCourseCreated: (courseId:
           <Button
             type="submit"
             className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-2xl transition-all hover:scale-105"
-            disabled={loading}
+            disabled={loading || loadingCourse}
           >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('generating')}
+                {isEdit ? 'Se salvează...' : t('generating')}
               </>
             ) : (
-              t('generate')
+              isEdit ? 'Salvează modificările' : t('generate')
             )}
           </Button>
         </form>
